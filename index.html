@@ -324,7 +324,7 @@ let state = {
 };
 
 /* ============ HELPERS ============ */
-const £ = n => "£" + n.toLocaleString("en-GB", {minimumFractionDigits: n % 1 ? 2 : 0});
+const gbp = n => "£" + n.toLocaleString("en-GB", {minimumFractionDigits: n % 1 ? 2 : 0});
 function toast(msg){
   const t=document.getElementById("toast");
   t.textContent=msg; t.classList.add("show");
@@ -354,18 +354,18 @@ function renderMain(){
     <div class="kpis">
       <div class="kpi"><div class="kpi-ico">&#163;</div><div>
         <div class="caption1">Yesterday's sales</div>
-        <div class="kpi-value">${£(ysales)}</div>
+        <div class="kpi-value">${gbp(ysales)}</div>
         <span class="kpi-delta neg">&#9660; 3.2% vs last Thu</span>
       </div></div>
       <div class="kpi"><div class="kpi-ico">&#163;</div><div>
         <div class="caption1">Week ${state.week} sales</div>
-        <div class="kpi-value">${£(wsales)}</div>
+        <div class="kpi-value">${gbp(wsales)}</div>
         <span class="kpi-delta pos">&#9650; 5.8% vs week ${state.week-1}</span>
       </div></div>
       <div class="kpi"><div class="kpi-ico">&#9678;</div><div>
         <div class="caption1">Weekly target</div>
-        <div class="kpi-value">${£(target)}</div>
-        <span class="caption1">${£(Math.max(0,Math.round((target-wsales)*100)/100))} to go</span>
+        <div class="kpi-value">${gbp(target)}</div>
+        <span class="caption1">${gbp(Math.max(0,Math.round((target-wsales)*100)/100))} to go</span>
       </div></div>
       <div class="kpi"><div class="ring-wrap">
         <div class="ring">
@@ -414,7 +414,7 @@ function renderSpenders(){
       <span class="sp-arrow" style="color:var(--${c.trend>=0?'good':'bad'})">${c.trend>=0?"&#9650;":"&#9660;"}</span>
       <div class="sp-cols">
         <div class="sp-col" style="flex:1.6"><div class="caption1">Customer</div><div class="v">${c.name}</div></div>
-        <div class="sp-col"><div class="caption1">Spend, 12 wks</div><div class="v">${£(scale(c.spend12))}</div></div>
+        <div class="sp-col"><div class="caption1">Spend, 12 wks</div><div class="v">${gbp(scale(c.spend12))}</div></div>
         <div class="sp-col" style="flex:.6"><div class="caption1">Orders</div><div class="v">${c.orders}</div></div>
       </div>
       <span class="sp-chev">&#9654;</span>
@@ -425,7 +425,7 @@ function renderSpenders(){
 function renderTopStats(){
   const max=Math.max(...WEEK_SALES);
   const bars = WEEK_SALES.map((v,i)=>`
-    <div class="bar ${v===max?'hot':''}" style="height:${v?Math.max(6,Math.round(v/max*100)):3}%" title="${DAYS[i]}: ${£(scale(v))}">
+    <div class="bar ${v===max?'hot':''}" style="height:${v?Math.max(6,Math.round(v/max*100)):3}%" title="${DAYS[i]}: ${gbp(scale(v))}">
       <span>${DAYS[i]}</span>
     </div>`).join("");
   const prods = TOP_PRODUCTS.map((p,i)=>`
@@ -468,9 +468,9 @@ function renderCustomerPanel(){
   return head+`
     <div class="sec-title">Spend trend</div>
     <div class="card-grid g3">
-      <div class="dcard"><div><div class="caption1">Ave spend, 52 weeks</div><div class="v">${£(scale(c.spend52))}</div></div></div>
-      <div class="dcard"><div><div class="caption1">Ave spend, 12 weeks</div><div class="v">${£(scale(c.spend12))}</div></div></div>
-      <div class="dcard"><div><div class="caption1">Ave spend, 3 weeks</div><div class="v">${£(scale(c.spend3))}</div></div></div>
+      <div class="dcard"><div><div class="caption1">Ave spend, 52 weeks</div><div class="v">${gbp(scale(c.spend52))}</div></div></div>
+      <div class="dcard"><div><div class="caption1">Ave spend, 12 weeks</div><div class="v">${gbp(scale(c.spend12))}</div></div></div>
+      <div class="dcard"><div><div class="caption1">Ave spend, 3 weeks</div><div class="v">${gbp(scale(c.spend3))}</div></div></div>
       <div class="trend-pill ${c.trend>=0?'pos':'neg'}">
         <div class="caption1">Trend</div>
         <div class="v">${c.trend>=0?"&#8599;":"&#8600;"} ${c.trend>=0?"+":""}${c.trend}%</div>
@@ -494,7 +494,7 @@ function renderReview(){
   const rows=CUSTOMERS.map(c=>`
     <tr onclick="reviewSelect('${c.name.replace(/'/g,"\\'")}')" style="cursor:pointer">
       <td style="font-weight:600">${c.name}</td><td>${c.trade}</td><td>${c.tier}</td>
-      <td class="num">${£(scale(c.spend52))}</td><td class="num">${c.orders}</td>
+      <td class="num">${gbp(scale(c.spend52))}</td><td class="num">${c.orders}</td>
       <td><span class="status ${c.trend>=0?'done':'exp'}">${c.trend>=0?"+":""}${c.trend}%</span></td>
     </tr>`).join("");
   return `<section class="panel">
