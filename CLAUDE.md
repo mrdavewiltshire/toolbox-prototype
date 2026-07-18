@@ -29,7 +29,7 @@ Principles: labels whisper, values speak, only section headers and navigation ge
 
 ## Architecture (keep it this way)
 - One global `state` object; `render()` re-renders the active page into `#pageHost`.
-- Pages: main (dashboard), review, upgrade, quotes. Each is a `render*()` function returning an HTML string.
+- Pages: main (dashboard), review, upgrade, quotes, rewards. Each is a `render*()` function returning an HTML string.
 - Dummy data lives in the constants at the top of the script (STORES, CUSTOMERS, TOP_PRODUCTS, WEEK_SALES).
 - Store switching scales all figures via `scale()` so each store looks distinct.
 - Keep event handling as inline `onclick` calling small named functions; this mirrors how a maker would read it.
