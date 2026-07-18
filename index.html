@@ -156,6 +156,13 @@
   .trend-pill .caption1{font-weight:600;margin-bottom:1px;}
   .trend-pill .v{font-size:16px;line-height:22px;font-weight:600;}
 
+  .reward-track{background:var(--card);border-radius:6px;height:8px;overflow:hidden;margin-bottom:6px;}
+  .reward-fill{background:var(--purple);height:100%;border-radius:6px;transition:width .2s;}
+  .upsell-card{background:var(--purple-light);border-radius:8px;padding:14px 16px;margin-bottom:18px;}
+  .upsell-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+  .upsell-head .ico{color:var(--purple);font-size:15px;}
+  .upsell-body{font-size:14px;line-height:20px;color:var(--fg1);margin-bottom:10px;}
+
   table{width:100%;border-collapse:collapse;}
   th{font-size:12px;line-height:16px;font-weight:600;color:var(--fg3);text-align:left;padding:8px 10px;border-bottom:1px solid var(--stroke);white-space:nowrap;}
   td{font-size:14px;line-height:20px;padding:9px 10px;border-bottom:1px solid var(--stroke);font-variant-numeric:tabular-nums;}
@@ -311,6 +318,24 @@ const TOP_PRODUCTS = [
 const WEEK_SALES = [2860, 3140, 4434, 3910, 2787, 0, 0]; /* Mon-Sun so far */
 const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 
+/* Screwfix Rewards: fictional points-based loyalty tier, 1 point per £1 spent (52 wk) */
+const REWARD_TIERS = [
+  {name:"Bronze",   min:0,     perk:"Standard trade pricing"},
+  {name:"Silver",   min:5000,  perk:"Free next-day delivery"},
+  {name:"Gold",     min:15000, perk:"5% loyalty discount on fixings"},
+  {name:"Platinum", min:30000, perk:"Dedicated account manager"},
+];
+const UPSELLS = {
+  Plumber:      "Unvented cylinder care pack, bundle discount this period",
+  Electrician:  "Consumer unit refit kit, trade bundle pricing",
+  Maintenance:  "Multi-trade fixings top-up bundle",
+  Carpenter:    "Site tool care pack, blade and fixing bundle",
+  Groundworker: "Drainage and groundworks restock bundle",
+  Decorator:    "Trade paint bulk order discount",
+  Tiler:        "Tiling adhesive and grout restock bundle",
+  Roofer:       "Roofing fixings and flashing bundle",
+};
+
 /* ============ STATE ============ */
 let state = {
   page:"main",
@@ -325,6 +350,16 @@ let state = {
 
 /* ============ HELPERS ============ */
 const gbp = n => "£" + n.toLocaleString("en-GB", {minimumFractionDigits: n % 1 ? 2 : 0});
+function rewardsInfo(c){
+  const pts = scale(c.spend52);
+  let idx = 0;
+  for(let i=0;i<REWARD_TIERS.length;i++){ if(pts>=REWARD_TIERS[i].min) idx=i; }
+  const cur = REWARD_TIERS[idx];
+  const next = REWARD_TIERS[idx+1];
+  const pct = next ? Math.min(100, Math.round((pts-cur.min)/(next.min-cur.min)*100)) : 100;
+  return {pts, cur, next, pct};
+}
+const recommendationFor = c => UPSELLS[c.trade] || "Trade account bundle, ask in branch for details";
 function toast(msg){
   const t=document.getElementById("toast");
   t.textContent=msg; t.classList.add("show");
@@ -487,6 +522,25 @@ function renderCustomerPanel(){
     <div class="card-grid g2">
       <div class="dcard"><span class="ico">&#127970;</span><div><div class="caption1">Favourite store</div><div class="v big">${c.favStore}</div></div></div>
       <div class="dcard"><span class="ico">&#128717;</span><div><div class="caption1">Favourite channel</div><div class="v big">${c.channel}</div></div></div>
+    </div>
+    ${renderRewards(c)}`;
+}
+
+function renderRewards(c){
+  const r = rewardsInfo(c);
+  return `
+    <div class="sec-title">Screwfix Rewards</div>
+    <div class="card-grid g3">
+      <div class="dcard"><span class="ico">&#11088;</span><div><div class="caption1">Rewards tier</div><div class="v big">${r.cur.name}</div></div></div>
+      <div class="dcard"><div><div class="caption1">Points balance</div><div class="v">${r.pts.toLocaleString("en-GB")} pts</div></div></div>
+      <div class="dcard"><div><div class="caption1">Current perk</div><div class="v">${r.cur.perk}</div></div></div>
+    </div>
+    <div class="reward-track"><div class="reward-fill" style="width:${r.pct}%"></div></div>
+    <div class="caption1" style="margin-bottom:18px">${r.next ? (r.next.min-r.pts).toLocaleString("en-GB")+" pts to "+r.next.name : "Highest tier reached"}</div>
+    <div class="upsell-card">
+      <div class="upsell-head"><span class="ico">&#128161;</span><span class="subtitle2">Recommended for this account</span></div>
+      <div class="upsell-body">${recommendationFor(c)}</div>
+      <button class="btn secondary" style="width:auto;padding:6px 14px;margin:0" onclick="toast('Promotion sent to ${c.name.replace(/'/g,"\\'")} (prototype)')">Send promotion</button>
     </div>`;
 }
 
