@@ -22,6 +22,10 @@
     --bad-bg:#FDF3F4;
     --page:#EDEDF2;
     --sel-border:#C9C9F0;
+    --bronze:#8A5A32; --bronze-bg:#F4EAE0;
+    --silver:#5B6470; --silver-bg:#EEF0F2;
+    --gold:#8A6D00; --gold-bg:#FBF2D9;
+    --platinum:#3E5C99; --platinum-bg:#E7ECF7;
   }
   body.dark{
     --purple:#7B7EDD;
@@ -40,6 +44,10 @@
     --bad-bg:#3A2225;
     --page:#141416;
     --sel-border:#4B4D8F;
+    --bronze:#D3934F; --bronze-bg:#3A2B1D;
+    --silver:#B8C0C9; --silver-bg:#2E3236;
+    --gold:#E0B84A; --gold-bg:#3A311A;
+    --platinum:#8FA8E0; --platinum-bg:#232C40;
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   body{
@@ -141,6 +149,11 @@
   .cust-head .name{font-size:20px;line-height:26px;font-weight:600;}
   .cust-head .num{font-size:12px;color:var(--fg3);font-variant-numeric:tabular-nums;}
   .badge{font-size:11px;font-weight:600;padding:2px 10px;border-radius:10px;background:var(--purple-light);color:var(--purple);}
+  .tier-pill{font-size:11px;font-weight:600;padding:2px 10px;border-radius:10px;display:inline-block;}
+  .tier-bronze{background:var(--bronze-bg);color:var(--bronze);}
+  .tier-silver{background:var(--silver-bg);color:var(--silver);}
+  .tier-gold{background:var(--gold-bg);color:var(--gold);}
+  .tier-platinum{background:var(--platinum-bg);color:var(--platinum);}
 
   .card-grid{display:grid;gap:10px;margin-bottom:18px;}
   .g3{grid-template-columns:repeat(3,1fr) auto;}
@@ -159,10 +172,12 @@
   .reward-track{background:var(--card);border-radius:6px;height:8px;overflow:hidden;margin-bottom:6px;}
   .reward-fill{background:var(--purple);height:100%;border-radius:6px;transition:width .2s;}
   .upsell-card{background:var(--purple-light);border-radius:8px;padding:14px 16px;margin-bottom:18px;}
+  .truncate{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:inline-block;max-width:260px;vertical-align:bottom;}
   .upsell-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
   .upsell-head .ico{color:var(--purple);font-size:15px;}
   .upsell-body{font-size:14px;line-height:20px;color:var(--fg1);margin-bottom:10px;}
 
+  .table-wrap{overflow-x:auto;}
   table{width:100%;border-collapse:collapse;}
   th{font-size:12px;line-height:16px;font-weight:600;color:var(--fg3);text-align:left;padding:8px 10px;border-bottom:1px solid var(--stroke);white-space:nowrap;}
   td{font-size:14px;line-height:20px;padding:9px 10px;border-bottom:1px solid var(--stroke);font-variant-numeric:tabular-nums;}
@@ -214,6 +229,7 @@
     .col-left{border-right:none;padding-right:0;margin-bottom:20px;}
     .col-right{padding-left:0;}
     .g3,.g4{grid-template-columns:1fr 1fr;}
+    .truncate{max-width:120px;}
   }
 </style>
 </head>
@@ -252,6 +268,7 @@
       <div class="nav-item" data-page="review" onclick="setPage('review')"><span style="color:var(--purple)">&#9998;</span>Account review</div>
       <div class="nav-item" data-page="upgrade" onclick="setPage('upgrade')"><span style="color:var(--purple)">&#10133;</span>Account upgrade</div>
       <div class="nav-item" data-page="quotes" onclick="setPage('quotes')"><span style="color:var(--purple)">&#163;</span>Quote tracker</div>
+      <div class="nav-item" data-page="rewards" onclick="setPage('rewards')"><span style="color:var(--purple)">&#11088;</span>Rewards</div>
       <div class="grow"></div>
       <div class="period" onclick="cyclePeriod()" title="Click to cycle reporting week (prototype)">
         <div class="seg"><span class="caption1">Period</span><span class="val" id="periodVal">6</span></div>
@@ -335,6 +352,13 @@ const UPSELLS = {
   Tiler:        "Tiling adhesive and grout restock bundle",
   Roofer:       "Roofing fixings and flashing bundle",
 };
+/* Trades that map onto a TOP_PRODUCTS category get a trending-product recommendation instead of the static fallback */
+const TRADE_CATEGORY = {
+  Plumber: "Plumbing",
+  Electrician: "Electrical",
+  Carpenter: "Power tools",
+  Maintenance: "Sealants",
+};
 
 /* ============ STATE ============ */
 let state = {
@@ -352,14 +376,20 @@ let state = {
 const gbp = n => "£" + n.toLocaleString("en-GB", {minimumFractionDigits: n % 1 ? 2 : 0});
 function rewardsInfo(c){
   const pts = scale(c.spend52);
+  const weekly = Math.round(scale(c.spend3));
   let idx = 0;
   for(let i=0;i<REWARD_TIERS.length;i++){ if(pts>=REWARD_TIERS[i].min) idx=i; }
   const cur = REWARD_TIERS[idx];
   const next = REWARD_TIERS[idx+1];
   const pct = next ? Math.min(100, Math.round((pts-cur.min)/(next.min-cur.min)*100)) : 100;
-  return {pts, cur, next, pct};
+  return {pts, weekly, cur, next, pct};
 }
-const recommendationFor = c => UPSELLS[c.trade] || "Trade account bundle, ask in branch for details";
+function recommendationFor(c){
+  const cat = TRADE_CATEGORY[c.trade];
+  const top = cat ? TOP_PRODUCTS.find(p=>p[1]===cat) : null;
+  if(top) return `${top[0]} is trending this week (${top[2]} sold), bundle discount available`;
+  return UPSELLS[c.trade] || "Trade account bundle, ask in branch for details";
+}
 function toast(msg){
   const t=document.getElementById("toast");
   t.textContent=msg; t.classList.add("show");
@@ -378,6 +408,7 @@ function render(){
   if(state.page==="main") host.innerHTML=renderMain();
   else if(state.page==="review") host.innerHTML=renderReview();
   else if(state.page==="upgrade") host.innerHTML=renderUpgrade();
+  else if(state.page==="rewards") host.innerHTML=renderRewardsPage();
   else host.innerHTML=renderQuotes();
 }
 
@@ -494,10 +525,10 @@ function renderCustomerPanel(){
       <td><span class="status ${r[4]==='Delivered'?'open':'done'}">${r[4]}</span></td></tr>`).join("");
     return head+`
       <div class="sec-title">Recent orders</div>
-      <table>
+      <div class="table-wrap"><table>
         <thead><tr><th>Order</th><th>Date</th><th class="num">Lines</th><th class="num">Value</th><th>Status</th></tr></thead>
         <tbody>${rows}</tbody>
-      </table>
+      </table></div>
       <div class="sp-legend" style="border:none;margin-top:10px">Showing last ${c.orderRows.length} orders &middot; Full history in Account review</div>`;
   }
   return head+`
@@ -531,8 +562,8 @@ function renderRewards(c){
   return `
     <div class="sec-title">Screwfix Rewards</div>
     <div class="card-grid g3">
-      <div class="dcard"><span class="ico">&#11088;</span><div><div class="caption1">Rewards tier</div><div class="v big">${r.cur.name}</div></div></div>
-      <div class="dcard"><div><div class="caption1">Points balance</div><div class="v">${r.pts.toLocaleString("en-GB")} pts</div></div></div>
+      <div class="dcard"><span class="ico">&#11088;</span><div><div class="caption1">Rewards tier</div><div class="v big"><span class="tier-pill tier-${r.cur.name.toLowerCase()}">${r.cur.name}</span></div></div></div>
+      <div class="dcard"><div><div class="caption1">Points balance</div><div class="v">${r.pts.toLocaleString("en-GB")} pts</div><span class="kpi-delta pos">&#9650; +${r.weekly.toLocaleString("en-GB")} this week</span></div></div>
       <div class="dcard"><div><div class="caption1">Current perk</div><div class="v">${r.cur.perk}</div></div></div>
     </div>
     <div class="reward-track"><div class="reward-fill" style="width:${r.pct}%"></div></div>
@@ -554,10 +585,10 @@ function renderReview(){
   return `<section class="panel">
     <div class="panel-head"><div class="panel-title">Account review</div>
     <span class="caption1">${CUSTOMERS.length} active trade accounts &middot; ${STORES[state.storeIdx].name}</span></div>
-    <table>
+    <div class="table-wrap"><table>
       <thead><tr><th>Account</th><th>Trade</th><th>Tier</th><th class="num">Spend, 52 wks</th><th class="num">Orders</th><th>Trend</th></tr></thead>
       <tbody>${rows}</tbody>
-    </table>
+    </table></div>
   </section>`;
 }
 
@@ -579,6 +610,34 @@ function renderUpgrade(){
   </section>`;
 }
 
+function renderRewardsPage(){
+  const withInfo = CUSTOMERS.map(c=>({c, r:rewardsInfo(c)}))
+    .sort((a,b)=>{
+      const da = a.r.next ? a.r.next.min-a.r.pts : Infinity;
+      const db = b.r.next ? b.r.next.min-b.r.pts : Infinity;
+      return da-db;
+    });
+  const rows = withInfo.map(({c,r})=>`
+    <tr>
+      <td style="font-weight:600">${c.name}</td>
+      <td>${c.trade}</td>
+      <td><span class="tier-pill tier-${r.cur.name.toLowerCase()}">${r.cur.name}</span></td>
+      <td class="num">${r.pts.toLocaleString("en-GB")}</td>
+      <td class="num">${r.next ? r.next.min-r.pts+" to "+r.next.name : "Top tier"}</td>
+      <td><span class="truncate" title="${recommendationFor(c)}">${recommendationFor(c)}</span></td>
+      <td><button class="btn secondary" style="width:auto;padding:5px 12px;margin:0" onclick="toast('Promotion sent to ${c.name.replace(/'/g,"\\'")} (prototype)')">Send</button></td>
+    </tr>`).join("");
+  return `<section class="panel">
+    <div class="panel-head"><div class="panel-title">Rewards opportunities</div>
+    <span class="caption1">${CUSTOMERS.length} accounts &middot; ${STORES[state.storeIdx].name}</span></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Account</th><th>Trade</th><th>Tier</th><th class="num">Points</th><th class="num">To next tier</th><th>Recommended</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+    <div class="sp-legend" style="border:none;margin-top:10px">Sorted by proximity to next Screwfix Rewards tier &middot; points based on scaled 52-week spend</div>
+  </section>`;
+}
+
 function renderQuotes(){
   const quotes=[
     ["QTE-2216","KJB Electrical Ltd","Consumer unit refit x3","£1,842.50","21 Jul 2026","open"],
@@ -596,10 +655,10 @@ function renderQuotes(){
   return `<section class="panel">
     <div class="panel-head"><div class="panel-title">Quote tracker</div>
     <span class="caption1">3 open quotes worth ${openVal}</span></div>
-    <table>
+    <div class="table-wrap"><table>
       <thead><tr><th>Quote</th><th>Account</th><th>Description</th><th class="num">Value</th><th>Expires</th><th>Status</th></tr></thead>
       <tbody>${rows}</tbody>
-    </table>
+    </table></div>
     <div class="sp-legend" style="border:none;margin-top:10px">Conversion rate this period: 62% &middot; Ave time to convert: 3.4 days</div>
   </section>`;
 }

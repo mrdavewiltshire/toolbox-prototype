@@ -9,7 +9,8 @@ Open `index.html` in any browser. No install, no build, no server.
 - Spender list with selection driving the customer detail panel
 - Overview and Orders tabs per customer, with order history
 - Top stats tab: weekly sales chart and top products
-- Account review, Account upgrade and Quote tracker pages
+- Account review, Account upgrade, Quote tracker and Rewards opportunities pages
+- Screwfix Rewards tier simulation per customer (points, progress to next tier, tier-coded badges) with a tailored upsell recommendation
 - Store switcher (reseeds all figures per store)
 - Dark mode with a full Fluent-aligned token set
 - Reporting week cycling and collapsible performance overview
