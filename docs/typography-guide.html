@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trade Partner ToolBox: Typography Best Practice (Fluent 2)</title>
+<style>
+  :root{
+    --purple:#4F52B2;                 /* brand */
+    --purple-light:#EBEBFA;
+    --fg1:#242424;                    /* Fluent neutralForeground1 */
+    --fg3:#616161;                    /* Fluent neutralForeground3 */
+    --fg-disabled:#9E9E9E;
+    --card:#F5F5F5;                   /* neutralBackground3 */
+    --good:#0E700E;                   /* Fluent green fg */
+    --bad:#B10E1C;                    /* Fluent red fg */
+    --page:#FAFAFA;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    font-family:"Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    background:var(--page);
+    color:var(--fg1);
+    padding:40px 24px 64px;
+  }
+  .wrap{max-width:1060px;margin:0 auto;}
+
+  .pagehead{margin-bottom:36px;}
+  .pagehead h1{font-size:20px;line-height:26px;font-weight:600;color:var(--purple);} /* Subtitle 1 */
+  .pagehead p{font-size:14px;line-height:20px;color:var(--fg3);margin-top:6px;max-width:660px;} /* Body 1 */
+
+  .rule-strip{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:40px;}
+  .rule{
+    background:#fff;border:1px solid #E6E6E6;border-radius:8px;
+    padding:14px 18px;flex:1;min-width:220px;
+  }
+  .rule .r-num{font-size:12px;line-height:16px;font-weight:600;letter-spacing:.06em;color:var(--purple);text-transform:uppercase;} /* Caption 1 Strong */
+  .rule .r-text{font-size:14px;line-height:20px;margin-top:4px;} /* Body 1 */
+
+  h2.section{
+    font-size:16px;line-height:22px;font-weight:600;color:var(--purple); /* Subtitle 2 */
+    margin:36px 0 14px;
+  }
+
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  @media (max-width:760px){.compare{grid-template-columns:1fr;}}
+  .panel{
+    background:#fff;border:1px solid #E6E6E6;border-radius:8px;
+    padding:20px;position:relative;
+  }
+  .tag{
+    display:inline-block;font-size:12px;line-height:16px;font-weight:600;letter-spacing:.06em;
+    text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:16px;
+  }
+  .tag.before{background:#FDF3F4;color:var(--bad);}
+  .tag.after{background:#F1FAF1;color:var(--good);}
+
+  /* ---------- BEFORE: everything bold, flat sizes ---------- */
+  .b-card{background:var(--card);border-radius:8px;padding:14px 16px;margin-bottom:10px;}
+  .b-row{display:flex;justify-content:space-between;align-items:center;}
+  .b-all{font-size:13px;font-weight:700;}
+
+  /* ---------- AFTER: Fluent 2 ramp ---------- */
+  .a-card{background:var(--card);border-radius:8px;padding:14px 16px;margin-bottom:10px;}
+  .a-label{
+    font-size:12px;line-height:16px;font-weight:400;color:var(--fg3);margin-bottom:2px; /* Caption 1 */
+  }
+  .a-value{font-size:16px;line-height:22px;font-weight:600;color:var(--fg1);} /* Subtitle 2 */
+  .a-value.big{font-size:20px;line-height:26px;} /* Subtitle 1 */
+
+  .spender{display:flex;align-items:center;gap:12px;}
+  .spender .arrow{font-size:14px;width:18px;text-align:center;}
+  .up{color:var(--good);} .down{color:var(--bad);}
+  .spender .cols{display:flex;gap:28px;flex:1;}
+  .spender .col{min-width:70px;}
+  .chev{color:var(--purple);font-size:13px;}
+
+  .note{
+    font-size:12px;line-height:16px;color:var(--fg3);margin-top:14px;
+    padding-top:12px;border-top:1px solid #EEE;
+  }
+  .note strong{color:var(--fg1);font-weight:600;}
+
+  /* type scale table */
+  .scale{background:#fff;border:1px solid #E6E6E6;border-radius:8px;padding:8px 20px;}
+  .scale-row{
+    display:grid;grid-template-columns:190px 1fr 250px;gap:16px;align-items:center;
+    padding:14px 0;border-bottom:1px solid #F0F0F0;
+  }
+  .scale-row:last-child{border-bottom:none;}
+  .scale-role{font-size:12px;line-height:16px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--fg3);}
+  .scale-spec{font-size:12px;line-height:16px;color:var(--fg3);text-align:right;font-variant-numeric:tabular-nums;}
+  .scale-spec b{color:var(--fg1);font-weight:600;display:block;}
+  @media (max-width:760px){
+    .scale-row{grid-template-columns:1fr;gap:4px;}
+    .scale-spec{text-align:left;}
+    .scale-spec b{display:inline;margin-right:8px;}
+  }
+  .t-kpi{font-size:28px;line-height:36px;font-weight:600;color:var(--fg1);}      /* Title 2 */
+  .t-header{font-size:16px;line-height:22px;font-weight:600;color:var(--purple);}/* Subtitle 2 */
+  .t-value{font-size:16px;line-height:22px;font-weight:600;color:var(--fg1);}    /* Subtitle 2 */
+  .t-label{font-size:12px;line-height:16px;font-weight:400;color:var(--fg3);}    /* Caption 1 */
+  .t-tab{font-size:14px;line-height:20px;font-weight:600;color:var(--purple);border-bottom:2px solid var(--purple);padding-bottom:2px;} /* Body 1 Strong */
+  .t-tab-off{font-size:14px;line-height:20px;font-weight:400;color:var(--fg-disabled);margin-left:14px;} /* Body 1 */
+
+  .footer{margin-top:44px;font-size:12px;line-height:16px;color:var(--fg-disabled);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="pagehead">
+    <h1>Trade Partner ToolBox: Typography Best Practice</h1>
+    <p>Same components, same data, same brand. The only change is the type treatment, and every size now sits on the Microsoft Fluent 2 type ramp. The rule of thumb: labels whisper, values speak, and only section headers get colour.</p>
+  </div>
+
+  <div class="rule-strip">
+    <div class="rule"><div class="r-num">Rule 1</div><div class="r-text">Labels are Caption 1: small, regular weight, muted grey. They identify the data, they never compete with it.</div></div>
+    <div class="rule"><div class="r-num">Rule 2</div><div class="r-text">Values are Subtitle 2: larger, semibold, near-black. The answer should always dominate the question.</div></div>
+    <div class="rule"><div class="r-num">Rule 3</div><div class="r-text">One semibold element per component. Fluent uses semibold (600) for emphasis, never heavy bold.</div></div>
+    <div class="rule"><div class="r-num">Rule 4</div><div class="r-text">Colour marks navigation and section headers only. Data stays neutral so the eye maps colour to structure.</div></div>
+  </div>
+
+  <h2 class="section">Spenders list</h2>
+  <div class="compare">
+    <div class="panel">
+      <span class="tag before">Before</span>
+      <div class="b-card">
+        <div class="spender">
+          <span class="arrow up">&#9650;</span>
+          <div class="cols">
+            <div class="col"><div class="b-all">Cus No:</div><div class="b-all">13370483524</div></div>
+            <div class="col"><div class="b-all">Spend</div><div class="b-all">&pound;500.00</div></div>
+            <div class="col"><div class="b-all">Orders</div><div class="b-all">127</div></div>
+          </div>
+          <span class="chev">&#9654;</span>
+        </div>
+      </div>
+      <div class="note">Label and value share the same size and weight, so the row reads as six equal fragments. Nothing tells the eye where to land.</div>
+    </div>
+    <div class="panel">
+      <span class="tag after">After</span>
+      <div class="a-card">
+        <div class="spender">
+          <span class="arrow up">&#9650;</span>
+          <div class="cols">
+            <div class="col"><div class="a-label">Customer</div><div class="a-value">13370483524</div></div>
+            <div class="col"><div class="a-label">Spend</div><div class="a-value">&pound;500.00</div></div>
+            <div class="col"><div class="a-label">Orders</div><div class="a-value">127</div></div>
+          </div>
+          <span class="chev">&#9654;</span>
+        </div>
+      </div>
+      <div class="note"><strong>What changed:</strong> labels drop to Caption 1 (12px regular, #616161); values rise to Subtitle 2 (16px semibold, #242424). The row now scans in a single pass.</div>
+    </div>
+  </div>
+
+  <h2 class="section">Habit cards</h2>
+  <div class="compare">
+    <div class="panel">
+      <span class="tag before">Before</span>
+      <div class="b-card"><div class="b-row"><span class="b-all">Most Common Day</span><span class="b-all">Tuesday</span></div></div>
+      <div class="b-card"><div class="b-row"><span class="b-all">Most Common Time</span><span class="b-all">08:00 - 10:00</span></div></div>
+      <div class="note">The question and the answer carry equal visual weight, so "Most Common Day Tuesday" reads as one flat phrase.</div>
+    </div>
+    <div class="panel">
+      <span class="tag after">After</span>
+      <div class="a-card"><div class="a-label">Most common day</div><div class="a-value">Tuesday</div></div>
+      <div class="a-card"><div class="a-label">Most common time</div><div class="a-value">08:00 - 10:00</div></div>
+      <div class="note"><strong>What changed:</strong> Caption 1 label stacked above a Subtitle 2 value, sentence case. This mirrors the KPI strip at the top of the app, which already gets this right.</div>
+    </div>
+  </div>
+
+  <h2 class="section">Loyalty card</h2>
+  <div class="compare">
+    <div class="panel">
+      <span class="tag before">Before</span>
+      <div class="b-card"><div class="b-row"><span class="b-all">Favourite Store</span><span class="b-all">Winchester</span></div></div>
+      <div class="note">Side by side at identical weight, the label and value merge into a single string.</div>
+    </div>
+    <div class="panel">
+      <span class="tag after">After</span>
+      <div class="a-card"><div class="a-label">Favourite store</div><div class="a-value big">Winchester</div></div>
+      <div class="note"><strong>What changed:</strong> stacked layout with the value promoted to Subtitle 1 (20px semibold) because this card has room to breathe. The store name is the payoff, so it gets the size.</div>
+    </div>
+  </div>
+
+  <h2 class="section">The type ramp (five roles, all Fluent 2 tokens)</h2>
+  <div class="scale">
+    <div class="scale-row">
+      <div class="scale-role">KPI value</div>
+      <div class="t-kpi">&pound;17,131.68</div>
+      <div class="scale-spec"><b>Title 2</b>28px / 36 &middot; Semibold 600 &middot; #242424</div>
+    </div>
+    <div class="scale-row">
+      <div class="scale-role">Section header</div>
+      <div class="t-header">Spend Trend</div>
+      <div class="scale-spec"><b>Subtitle 2</b>16px / 22 &middot; Semibold 600 &middot; brand #4F52B2</div>
+    </div>
+    <div class="scale-row">
+      <div class="scale-role">Tab</div>
+      <div><span class="t-tab">Overview</span><span class="t-tab-off">Orders</span></div>
+      <div class="scale-spec"><b>Body 1 / Body 1 Strong</b>14px / 20 &middot; Semibold active, Regular inactive</div>
+    </div>
+    <div class="scale-row">
+      <div class="scale-role">Card value</div>
+      <div class="t-value">&pound;18,400</div>
+      <div class="scale-spec"><b>Subtitle 2</b>16px / 22 &middot; Semibold 600 &middot; #242424</div>
+    </div>
+    <div class="scale-row">
+      <div class="scale-role">Card label</div>
+      <div class="t-label">Ave spend, 52 weeks</div>
+      <div class="scale-spec"><b>Caption 1</b>12px / 16 &middot; Regular 400 &middot; #616161</div>
+    </div>
+  </div>
+
+  <div class="footer">Colours use Fluent 2 neutral tokens: neutralForeground1 (#242424) for values, neutralForeground3 (#616161) for labels. Every text control in the app should map to exactly one of these five roles. If a piece of text does not fit a role, question whether it needs to exist.</div>
+
+</div>
+</body>
+</html>

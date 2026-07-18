@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trade Partner ToolBox: Prototype</title>
+<style>
+  :root{
+    --purple:#4F52B2;
+    --purple-hover:#444791;
+    --purple-light:#EBEBFA;
+    --fg1:#242424;
+    --fg2:#424242;
+    --fg3:#616161;
+    --fg-disabled:#9E9E9E;
+    --card:#F5F5F5;
+    --surface:#FFFFFF;
+    --stroke:#E6E6E6;
+    --good:#0E700E;
+    --good-bg:#F1FAF1;
+    --bad:#B10E1C;
+    --bad-bg:#FDF3F4;
+    --page:#EDEDF2;
+    --sel-border:#C9C9F0;
+  }
+  body.dark{
+    --purple:#7B7EDD;
+    --purple-hover:#9193E8;
+    --purple-light:#33345C;
+    --fg1:#F0F0F0;
+    --fg2:#D6D6D6;
+    --fg3:#A0A0A0;
+    --fg-disabled:#707070;
+    --card:#2B2B2E;
+    --surface:#1F1F22;
+    --stroke:#3A3A3E;
+    --good:#6CCB6C;
+    --good-bg:#1E2E1E;
+    --bad:#F1707B;
+    --bad-bg:#3A2225;
+    --page:#141416;
+    --sel-border:#4B4D8F;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    font-family:"Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    background:var(--page); color:var(--fg1); padding:16px;
+    transition:background .2s,color .2s;
+  }
+  .caption1{font-size:12px;line-height:16px;font-weight:400;color:var(--fg3);}
+  .app{display:grid;grid-template-columns:220px 1fr;gap:14px;max-width:1360px;margin:0 auto;}
+
+  /* Sidebar */
+  .sidebar{background:var(--surface);border-radius:12px;border:1px solid var(--stroke);
+    padding:18px 16px;display:flex;flex-direction:column;gap:22px;min-height:780px;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-logo{width:36px;height:36px;border-radius:50%;background:var(--fg1);color:var(--surface);
+    display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;}
+  .brand-name{font-size:14px;line-height:18px;font-weight:600;}
+  .brand-name span{display:block;font-weight:400;color:var(--fg3);font-size:12px;}
+  .store-card{background:var(--card);border-radius:8px;padding:14px;}
+  .store-name{font-size:16px;line-height:22px;font-weight:600;}
+  .store-meta{font-size:12px;line-height:16px;color:var(--fg3);margin-top:2px;}
+  .btn{margin-top:12px;width:100%;background:var(--purple);color:#fff;border:none;border-radius:6px;
+    font-family:inherit;font-size:14px;line-height:20px;font-weight:600;padding:8px 12px;cursor:pointer;}
+  .btn:hover{background:var(--purple-hover);}
+  .btn.secondary{background:transparent;color:var(--purple);border:1px solid var(--purple);}
+  .side-section{display:flex;flex-direction:column;gap:6px;}
+  .side-label{font-size:12px;font-weight:600;color:var(--fg3);text-transform:uppercase;letter-spacing:.05em;}
+  .side-link{display:flex;align-items:center;gap:10px;font-size:14px;line-height:20px;color:var(--fg2);
+    padding:7px 8px;border-radius:6px;cursor:pointer;user-select:none;}
+  .side-link:hover{background:var(--card);}
+  .side-link .ico{width:18px;text-align:center;color:var(--purple);}
+  .sidebar .spacer{flex:1;}
+  .profile{display:flex;align-items:center;gap:10px;padding-top:14px;border-top:1px solid var(--stroke);}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--purple-light);color:var(--purple);
+    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;}
+  .profile .who{font-size:12px;color:var(--fg3);}
+  .profile .who b{display:block;font-size:13px;color:var(--fg1);font-weight:600;}
+
+  /* Main */
+  .main{display:flex;flex-direction:column;gap:14px;min-width:0;}
+  .topbar{background:var(--surface);border-radius:12px;border:1px solid var(--stroke);
+    padding:10px 18px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .nav-item{display:flex;align-items:center;gap:8px;font-size:14px;line-height:20px;color:var(--fg2);
+    padding:8px 14px;border-radius:6px;cursor:pointer;user-select:none;}
+  .nav-item:hover{background:var(--card);}
+  .nav-item.active{color:var(--purple);font-weight:600;background:var(--purple-light);}
+  .topbar .grow{flex:1;}
+  .period{display:flex;align-items:center;background:var(--card);border-radius:8px;border:1px solid var(--stroke);cursor:pointer;user-select:none;}
+  .period .seg{padding:7px 14px;display:flex;flex-direction:column;}
+  .period .seg + .seg{border-left:1px solid var(--stroke);}
+  .period .caption1{font-size:11px;line-height:14px;}
+  .period .val{font-size:14px;line-height:18px;font-weight:600;}
+  .period .chev{padding:0 10px;color:var(--fg3);font-size:11px;}
+
+  .panel{background:var(--surface);border-radius:12px;border:1px solid var(--stroke);padding:20px 22px;}
+  .panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .panel-title{font-size:16px;line-height:22px;font-weight:600;color:var(--purple);}
+  .collapse{color:var(--purple);cursor:pointer;font-size:13px;user-select:none;}
+
+  .kpis{display:grid;grid-template-columns:1fr 1fr 1fr 1.2fr;}
+  .kpi{padding:6px 24px;border-right:1px solid var(--stroke);display:flex;align-items:center;gap:14px;}
+  .kpi:first-child{padding-left:4px;}
+  .kpi:last-child{border-right:none;}
+  .kpi-ico{width:40px;height:40px;border-radius:50%;flex:none;background:var(--purple-light);color:var(--purple);
+    display:flex;align-items:center;justify-content:center;font-size:17px;}
+  .kpi-value{font-size:28px;line-height:36px;font-weight:600;font-variant-numeric:tabular-nums;}
+  .kpi-delta{font-size:12px;line-height:16px;font-weight:600;margin-top:2px;display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:10px;}
+  .kpi-delta.pos{color:var(--good);background:var(--good-bg);}
+  .kpi-delta.neg{color:var(--bad);background:var(--bad-bg);}
+  .ring-wrap{display:flex;align-items:center;gap:16px;}
+  .ring{position:relative;width:76px;height:76px;flex:none;}
+  .ring svg{transform:rotate(-90deg);}
+  .ring .pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:600;}
+  .subtitle2{font-size:16px;line-height:22px;font-weight:600;}
+
+  .lower{display:grid;grid-template-columns:360px 1fr;}
+  .col-left{border-right:1px solid var(--stroke);padding-right:20px;min-width:0;}
+  .col-right{padding-left:22px;min-width:0;}
+  .tabs{display:flex;gap:20px;border-bottom:1px solid var(--stroke);margin-bottom:14px;}
+  .tab{font-size:14px;line-height:20px;color:var(--fg-disabled);padding:6px 2px 9px;cursor:pointer;
+    border-bottom:2px solid transparent;display:flex;align-items:center;gap:7px;user-select:none;}
+  .tab.active{color:var(--purple);font-weight:600;border-bottom-color:var(--purple);}
+
+  .sp-row{display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:8px;cursor:pointer;
+    border:1px solid transparent;user-select:none;}
+  .sp-row:hover{background:var(--card);}
+  .sp-row.selected{background:var(--purple-light);border-color:var(--sel-border);}
+  .sp-row + .sp-row{margin-top:2px;}
+  .sp-arrow{width:16px;text-align:center;font-size:12px;flex:none;}
+  .sp-cols{display:flex;flex:1;min-width:0;}
+  .sp-col{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;}
+  .sp-col .caption1{font-size:11px;line-height:14px;margin-bottom:1px;white-space:nowrap;}
+  .sp-col .v{font-size:14px;line-height:20px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .sp-chev{color:var(--purple);font-size:12px;flex:none;}
+  .sp-legend{margin-top:12px;padding-top:10px;border-top:1px solid var(--stroke);font-size:11px;line-height:15px;color:var(--fg-disabled);}
+
+  .sec-title{font-size:16px;line-height:22px;font-weight:600;color:var(--purple);margin:4px 0 10px;}
+  .cust-head{display:flex;align-items:baseline;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+  .cust-head .name{font-size:20px;line-height:26px;font-weight:600;}
+  .cust-head .num{font-size:12px;color:var(--fg3);font-variant-numeric:tabular-nums;}
+  .badge{font-size:11px;font-weight:600;padding:2px 10px;border-radius:10px;background:var(--purple-light);color:var(--purple);}
+
+  .card-grid{display:grid;gap:10px;margin-bottom:18px;}
+  .g3{grid-template-columns:repeat(3,1fr) auto;}
+  .g4{grid-template-columns:repeat(4,1fr);}
+  .g2{grid-template-columns:1fr 1fr;}
+  .dcard{background:var(--card);border-radius:8px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px;}
+  .dcard .ico{color:var(--purple);font-size:15px;margin-top:2px;flex:none;}
+  .dcard .v{font-size:16px;line-height:22px;font-weight:600;font-variant-numeric:tabular-nums;}
+  .dcard .v.big{font-size:20px;line-height:26px;}
+  .trend-pill{display:flex;flex-direction:column;justify-content:center;align-items:center;border-radius:8px;padding:12px 16px;min-width:92px;}
+  .trend-pill.pos{background:var(--good-bg);} .trend-pill.pos *{color:var(--good);}
+  .trend-pill.neg{background:var(--bad-bg);} .trend-pill.neg *{color:var(--bad);}
+  .trend-pill .caption1{font-weight:600;margin-bottom:1px;}
+  .trend-pill .v{font-size:16px;line-height:22px;font-weight:600;}
+
+  table{width:100%;border-collapse:collapse;}
+  th{font-size:12px;line-height:16px;font-weight:600;color:var(--fg3);text-align:left;padding:8px 10px;border-bottom:1px solid var(--stroke);white-space:nowrap;}
+  td{font-size:14px;line-height:20px;padding:9px 10px;border-bottom:1px solid var(--stroke);font-variant-numeric:tabular-nums;}
+  td.num,th.num{text-align:right;}
+  tr:hover td{background:var(--card);}
+  .status{font-size:11px;font-weight:600;padding:2px 10px;border-radius:10px;display:inline-block;}
+  .status.done{background:var(--good-bg);color:var(--good);}
+  .status.open{background:var(--purple-light);color:var(--purple);}
+  .status.exp{background:var(--bad-bg);color:var(--bad);}
+
+  .stat-list{display:flex;flex-direction:column;gap:8px;}
+  .stat-item{background:var(--card);border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:12px;}
+  .stat-item .rank{width:26px;height:26px;border-radius:50%;background:var(--purple-light);color:var(--purple);
+    font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:none;}
+  .stat-item .lab{flex:1;min-width:0;}
+  .stat-item .lab .caption1{font-size:11px;line-height:14px;}
+  .stat-item .lab .v{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .stat-item .amt{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;}
+
+  .bars{display:flex;align-items:flex-end;gap:6px;height:120px;margin:6px 0 4px;}
+  .bar{flex:1;background:var(--purple-light);border-radius:4px 4px 0 0;position:relative;min-width:0;}
+  .bar.hot{background:var(--purple);}
+  .bar span{position:absolute;bottom:-20px;left:0;right:0;text-align:center;font-size:10px;color:var(--fg3);}
+  .bars-wrap{padding-bottom:24px;margin-bottom:14px;}
+
+  .empty{padding:40px 20px;text-align:center;color:var(--fg3);font-size:14px;line-height:20px;}
+  .empty .big-ico{font-size:34px;margin-bottom:10px;color:var(--purple);}
+
+  /* Modal */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:50;}
+  .overlay.show{display:flex;}
+  .modal{background:var(--surface);border-radius:12px;border:1px solid var(--stroke);padding:22px;width:340px;max-width:92vw;}
+  .modal h3{font-size:16px;font-weight:600;color:var(--purple);margin-bottom:14px;}
+  .store-opt{padding:11px 12px;border-radius:8px;cursor:pointer;border:1px solid transparent;}
+  .store-opt:hover{background:var(--card);}
+  .store-opt.on{background:var(--purple-light);border-color:var(--sel-border);}
+  .store-opt .n{font-size:14px;font-weight:600;}
+  .store-opt .m{font-size:12px;color:var(--fg3);}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--fg1);color:var(--surface);
+    font-size:13px;font-weight:600;padding:9px 18px;border-radius:8px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:60;}
+  .toast.show{opacity:1;}
+
+  @media (max-width:1080px){
+    .app{grid-template-columns:1fr;}
+    .sidebar{min-height:0;}
+    .kpis{grid-template-columns:1fr 1fr;}
+    .kpi{border-right:none;padding:12px 4px;}
+    .lower{grid-template-columns:1fr;}
+    .col-left{border-right:none;padding-right:0;margin-bottom:20px;}
+    .col-right{padding-left:0;}
+    .g3,.g4{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">TP</div>
+      <div class="brand-name">Trade Partner<span>ToolBox</span></div>
+    </div>
+    <div class="store-card">
+      <div class="caption1">Selected store</div>
+      <div class="store-name" id="storeName">Winchester</div>
+      <div class="store-meta" id="storeMeta">Store 4127 &middot; South Central</div>
+      <button class="btn secondary" onclick="openStoreModal()">Change store</button>
+    </div>
+    <div class="side-section">
+      <div class="side-label">Preferences</div>
+      <div class="side-link" onclick="toggleTheme()"><span class="ico" id="themeIco">&#9788;</span><span id="themeLbl">Dark mode</span></div>
+    </div>
+    <div class="side-section">
+      <div class="side-label">Support</div>
+      <div class="side-link" onclick="toast('Problem report opened (prototype)')"><span class="ico">&#9993;</span>Report a problem</div>
+    </div>
+    <div class="spacer"></div>
+    <div class="profile">
+      <div class="avatar">CO</div>
+      <div class="who"><b>Central Ops</b>SRV-SFXCentralOps</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="nav-item" data-page="main" onclick="setPage('main')"><span style="color:var(--purple)">&#8962;</span>Main menu</div>
+      <div class="nav-item" data-page="review" onclick="setPage('review')"><span style="color:var(--purple)">&#9998;</span>Account review</div>
+      <div class="nav-item" data-page="upgrade" onclick="setPage('upgrade')"><span style="color:var(--purple)">&#10133;</span>Account upgrade</div>
+      <div class="nav-item" data-page="quotes" onclick="setPage('quotes')"><span style="color:var(--purple)">&#163;</span>Quote tracker</div>
+      <div class="grow"></div>
+      <div class="period" onclick="cyclePeriod()" title="Click to cycle reporting week (prototype)">
+        <div class="seg"><span class="caption1">Period</span><span class="val" id="periodVal">6</span></div>
+        <div class="seg"><span class="caption1">Week</span><span class="val" id="weekVal">24</span></div>
+        <div class="chev">&#9662;</div>
+      </div>
+    </div>
+
+    <div id="pageHost"></div>
+  </main>
+</div>
+
+<div class="overlay" id="storeOverlay" onclick="if(event.target===this)closeStoreModal()">
+  <div class="modal">
+    <h3>Select store</h3>
+    <div id="storeList"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ DATA ============ */
+const STORES = [
+  {name:"Winchester", num:"4127", region:"South Central"},
+  {name:"Yeovil",     num:"3082", region:"South West"},
+  {name:"Dorchester", num:"3115", region:"South West"},
+  {name:"Basingstoke",num:"4210", region:"South Central"},
+];
+
+const CUSTOMERS = [
+  {num:"2540 9321 777", name:"Hartley Plumbing & Heating", trade:"Plumber", spend52:24870, spend12:4210, spend3:640, orders:214, trend:-8,
+   day:"Monday", time:"07:00 - 09:00", peak:"Mon 07:00 - 09:00", stores:2, favStore:"Winchester", channel:"Branch", tier:"Gold",
+   orderRows:[["ORD-88213","14 Jul 2026",6,"£214.60","Collected"],["ORD-87901","10 Jul 2026",11,"£486.12","Collected"],["ORD-87544","07 Jul 2026",3,"£92.40","Delivered"],["ORD-87102","01 Jul 2026",9,"£337.85","Collected"],["ORD-86690","26 Jun 2026",14,"£611.02","Delivered"]]},
+  {num:"1337 0483 524", name:"KJB Electrical Ltd", trade:"Electrician", spend52:18400, spend12:6400, spend3:1400, orders:127, trend:12,
+   day:"Tuesday", time:"08:00 - 10:00", peak:"Tue 10:00 - 13:00", stores:4, favStore:"Winchester", channel:"Branch", tier:"Gold",
+   orderRows:[["ORD-88377","16 Jul 2026",8,"£342.18","Collected"],["ORD-88015","12 Jul 2026",5,"£188.90","Collected"],["ORD-87610","08 Jul 2026",12,"£529.44","Delivered"],["ORD-87233","03 Jul 2026",4,"£141.20","Collected"],["ORD-86801","28 Jun 2026",10,"£410.66","Collected"]]},
+  {num:"1223 8193 048", name:"Southgate Property Maintenance", trade:"Maintenance", spend52:15920, spend12:4780, spend3:1120, orders:186, trend:9,
+   day:"Wednesday", time:"09:00 - 11:00", peak:"Wed 09:00 - 11:00", stores:3, favStore:"Basingstoke", channel:"Click & Collect", tier:"Silver",
+   orderRows:[["ORD-88290","15 Jul 2026",7,"£268.31","Collected"],["ORD-87880","09 Jul 2026",9,"£374.09","Collected"],["ORD-87401","05 Jul 2026",6,"£212.77","Delivered"],["ORD-86950","30 Jun 2026",13,"£487.55","Collected"]]},
+  {num:"1584 8953 191", name:"D. Mercer Carpentry", trade:"Carpenter", spend52:9640, spend12:3350, spend3:980, orders:98, trend:17,
+   day:"Friday", time:"07:00 - 09:00", peak:"Fri 07:00 - 09:00", stores:1, favStore:"Winchester", channel:"Branch", tier:"Silver",
+   orderRows:[["ORD-88401","17 Jul 2026",4,"£156.80","Collected"],["ORD-87995","11 Jul 2026",8,"£302.45","Collected"],["ORD-87520","06 Jul 2026",5,"£178.12","Collected"]]},
+  {num:"0677 6645 033", name:"Fairfield Groundworks", trade:"Groundworker", spend52:31200, spend12:5100, spend3:410, orders:156, trend:-21,
+   day:"Monday", time:"06:00 - 08:00", peak:"Mon 06:00 - 08:00", stores:2, favStore:"Yeovil", channel:"Delivery", tier:"Gold",
+   orderRows:[["ORD-87755","08 Jul 2026",18,"£884.60","Delivered"],["ORD-87001","30 Jun 2026",22,"£1,102.35","Delivered"],["ORD-86402","21 Jun 2026",15,"£763.90","Delivered"]]},
+  {num:"1902 4471 866", name:"Brightway Decorating", trade:"Decorator", spend52:7215, spend12:2890, spend3:860, orders:74, trend:6,
+   day:"Thursday", time:"08:00 - 10:00", peak:"Thu 08:00 - 10:00", stores:2, favStore:"Winchester", channel:"Branch", tier:"Bronze",
+   orderRows:[["ORD-88310","15 Jul 2026",6,"£201.14","Collected"],["ORD-87840","09 Jul 2026",4,"£133.72","Collected"],["ORD-87290","04 Jul 2026",7,"£244.90","Delivered"]]},
+  {num:"1156 7720 349", name:"Aqua Bathrooms & Tiling", trade:"Tiler", spend52:12480, spend12:4020, spend3:1310, orders:112, trend:14,
+   day:"Tuesday", time:"10:00 - 12:00", peak:"Tue 10:00 - 12:00", stores:3, favStore:"Dorchester", channel:"Click & Collect", tier:"Silver",
+   orderRows:[["ORD-88350","16 Jul 2026",9,"£388.27","Collected"],["ORD-87911","10 Jul 2026",11,"£451.63","Collected"],["ORD-87433","05 Jul 2026",5,"£177.08","Delivered"],["ORD-86980","30 Jun 2026",8,"£315.44","Collected"]]},
+  {num:"2088 1934 502", name:"Pinnacle Roofing SW", trade:"Roofer", spend52:16750, spend12:3120, spend3:520, orders:89, trend:-11,
+   day:"Wednesday", time:"07:00 - 09:00", peak:"Wed 07:00 - 09:00", stores:2, favStore:"Yeovil", channel:"Branch", tier:"Silver",
+   orderRows:[["ORD-87690","08 Jul 2026",10,"£442.19","Collected"],["ORD-87150","02 Jul 2026",13,"£571.66","Delivered"],["ORD-86550","23 Jun 2026",9,"£398.02","Collected"]]},
+];
+
+const TOP_PRODUCTS = [
+  ["Erbauer EXT 18V combi drill","Power tools","£3,412"],
+  ["Tower flat twin & earth 2.5mm x 100m","Electrical","£2,988"],
+  ["FloPlast solvent weld waste 40mm","Plumbing","£2,240"],
+  ["No Nonsense trade sealant clear","Sealants","£1,876"],
+  ["DeWalt XR brushless impact driver","Power tools","£1,654"],
+];
+const WEEK_SALES = [2860, 3140, 4434, 3910, 2787, 0, 0]; /* Mon-Sun so far */
+const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+
+/* ============ STATE ============ */
+let state = {
+  page:"main",
+  storeIdx:0,
+  custIdx:1,
+  leftTab:"spenders",
+  rightTab:"overview",
+  week:24,
+  perfOpen:true,
+  seed:1,
+};
+
+/* ============ HELPERS ============ */
+const £ = n => "£" + n.toLocaleString("en-GB", {minimumFractionDigits: n % 1 ? 2 : 0});
+function toast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.classList.add("show");
+  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),2200);
+}
+
+/* Store-dependent scaling so changing store visibly reseeds numbers */
+function scale(n){ const f=[1,0.82,0.64,1.13][state.storeIdx]; return Math.round(n*f); }
+
+/* ============ RENDER ============ */
+function render(){
+  document.querySelectorAll(".nav-item").forEach(el=>{
+    el.classList.toggle("active", el.dataset.page===state.page);
+  });
+  const host=document.getElementById("pageHost");
+  if(state.page==="main") host.innerHTML=renderMain();
+  else if(state.page==="review") host.innerHTML=renderReview();
+  else if(state.page==="upgrade") host.innerHTML=renderUpgrade();
+  else host.innerHTML=renderQuotes();
+}
+
+function renderMain(){
+  const ysales=scale(4434.87*100)/100, wsales=scale(17131.68*100)/100, target=scale(21481.91*100)/100;
+  const pct=Math.min(99,Math.round(wsales/target*100));
+  const dash=201, off=Math.round(dash*(1-pct/100));
+  const perfBody = state.perfOpen ? `
+    <div class="kpis">
+      <div class="kpi"><div class="kpi-ico">&#163;</div><div>
+        <div class="caption1">Yesterday's sales</div>
+        <div class="kpi-value">${£(ysales)}</div>
+        <span class="kpi-delta neg">&#9660; 3.2% vs last Thu</span>
+      </div></div>
+      <div class="kpi"><div class="kpi-ico">&#163;</div><div>
+        <div class="caption1">Week ${state.week} sales</div>
+        <div class="kpi-value">${£(wsales)}</div>
+        <span class="kpi-delta pos">&#9650; 5.8% vs week ${state.week-1}</span>
+      </div></div>
+      <div class="kpi"><div class="kpi-ico">&#9678;</div><div>
+        <div class="caption1">Weekly target</div>
+        <div class="kpi-value">${£(target)}</div>
+        <span class="caption1">${£(Math.max(0,Math.round((target-wsales)*100)/100))} to go</span>
+      </div></div>
+      <div class="kpi"><div class="ring-wrap">
+        <div class="ring">
+          <svg width="76" height="76" viewBox="0 0 76 76">
+            <circle cx="38" cy="38" r="32" fill="none" stroke="var(--purple-light)" stroke-width="8"/>
+            <circle cx="38" cy="38" r="32" fill="none" stroke="var(--purple)" stroke-width="8"
+                    stroke-linecap="round" stroke-dasharray="${dash}" stroke-dashoffset="${off}"/>
+          </svg>
+          <div class="pct">${pct}%</div>
+        </div>
+        <div>
+          <div class="caption1">Progress to target</div>
+          <div class="subtitle2">${pct>=75?"On track":"Behind pace"}</div>
+          <div class="caption1">2 trading days left</div>
+        </div>
+      </div></div>
+    </div>` : `<div class="caption1">Collapsed. Select the chevron to expand.</div>`;
+
+  return `
+  <section class="panel">
+    <div class="panel-head">
+      <div class="panel-title">Performance overview</div>
+      <div class="collapse" onclick="togglePerf()">${state.perfOpen?"&#9650;":"&#9660;"}</div>
+    </div>
+    ${perfBody}
+  </section>
+  <section class="panel">
+    <div class="lower">
+      <div class="col-left">
+        <div class="tabs">
+          <div class="tab ${state.leftTab==='topstats'?'active':''}" onclick="setLeftTab('topstats')"><span>&#127942;</span>Top stats</div>
+          <div class="tab ${state.leftTab==='spenders'?'active':''}" onclick="setLeftTab('spenders')"><span>&#128101;</span>Spenders</div>
+        </div>
+        ${state.leftTab==='spenders'?renderSpenders():renderTopStats()}
+      </div>
+      <div class="col-right">
+        ${renderCustomerPanel()}
+      </div>
+    </div>
+  </section>`;
+}
+
+function renderSpenders(){
+  const rows = CUSTOMERS.map((c,i)=>`
+    <div class="sp-row ${i===state.custIdx?'selected':''}" onclick="selectCust(${i})">
+      <span class="sp-arrow" style="color:var(--${c.trend>=0?'good':'bad'})">${c.trend>=0?"&#9650;":"&#9660;"}</span>
+      <div class="sp-cols">
+        <div class="sp-col" style="flex:1.6"><div class="caption1">Customer</div><div class="v">${c.name}</div></div>
+        <div class="sp-col"><div class="caption1">Spend, 12 wks</div><div class="v">${£(scale(c.spend12))}</div></div>
+        <div class="sp-col" style="flex:.6"><div class="caption1">Orders</div><div class="v">${c.orders}</div></div>
+      </div>
+      <span class="sp-chev">&#9654;</span>
+    </div>`).join("");
+  return rows + `<div class="sp-legend">&#9650;&#9660; Spend vs previous 12-week average &middot; Select a customer to view their profile</div>`;
+}
+
+function renderTopStats(){
+  const max=Math.max(...WEEK_SALES);
+  const bars = WEEK_SALES.map((v,i)=>`
+    <div class="bar ${v===max?'hot':''}" style="height:${v?Math.max(6,Math.round(v/max*100)):3}%" title="${DAYS[i]}: ${£(scale(v))}">
+      <span>${DAYS[i]}</span>
+    </div>`).join("");
+  const prods = TOP_PRODUCTS.map((p,i)=>`
+    <div class="stat-item">
+      <div class="rank">${i+1}</div>
+      <div class="lab"><div class="caption1">${p[1]}</div><div class="v">${p[0]}</div></div>
+      <div class="amt">${p[2]}</div>
+    </div>`).join("");
+  return `
+    <div class="sec-title" style="margin-top:0">Sales this week</div>
+    <div class="bars-wrap"><div class="bars">${bars}</div></div>
+    <div class="sec-title">Top products, week ${state.week}</div>
+    <div class="stat-list">${prods}</div>`;
+}
+
+function renderCustomerPanel(){
+  const c=CUSTOMERS[state.custIdx];
+  const head=`
+    <div class="cust-head">
+      <div class="name">${c.name}</div>
+      <div class="num">${c.num}</div>
+      <span class="badge">${c.tier} &middot; ${c.trade}</span>
+    </div>
+    <div class="tabs">
+      <div class="tab ${state.rightTab==='overview'?'active':''}" onclick="setRightTab('overview')"><span>&#128100;</span>Overview</div>
+      <div class="tab ${state.rightTab==='orders'?'active':''}" onclick="setRightTab('orders')"><span>&#128203;</span>Orders</div>
+    </div>`;
+  if(state.rightTab==='orders'){
+    const rows=c.orderRows.map(r=>`
+      <tr><td>${r[0]}</td><td>${r[1]}</td><td class="num">${r[2]}</td><td class="num">${r[3]}</td>
+      <td><span class="status ${r[4]==='Delivered'?'open':'done'}">${r[4]}</span></td></tr>`).join("");
+    return head+`
+      <div class="sec-title">Recent orders</div>
+      <table>
+        <thead><tr><th>Order</th><th>Date</th><th class="num">Lines</th><th class="num">Value</th><th>Status</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="sp-legend" style="border:none;margin-top:10px">Showing last ${c.orderRows.length} orders &middot; Full history in Account review</div>`;
+  }
+  return head+`
+    <div class="sec-title">Spend trend</div>
+    <div class="card-grid g3">
+      <div class="dcard"><div><div class="caption1">Ave spend, 52 weeks</div><div class="v">${£(scale(c.spend52))}</div></div></div>
+      <div class="dcard"><div><div class="caption1">Ave spend, 12 weeks</div><div class="v">${£(scale(c.spend12))}</div></div></div>
+      <div class="dcard"><div><div class="caption1">Ave spend, 3 weeks</div><div class="v">${£(scale(c.spend3))}</div></div></div>
+      <div class="trend-pill ${c.trend>=0?'pos':'neg'}">
+        <div class="caption1">Trend</div>
+        <div class="v">${c.trend>=0?"&#8599;":"&#8600;"} ${c.trend>=0?"+":""}${c.trend}%</div>
+      </div>
+    </div>
+    <div class="sec-title">Habits</div>
+    <div class="card-grid g4">
+      <div class="dcard"><span class="ico">&#128197;</span><div><div class="caption1">Most common day</div><div class="v">${c.day}</div></div></div>
+      <div class="dcard"><span class="ico">&#128336;</span><div><div class="caption1">Most common time</div><div class="v">${c.time}</div></div></div>
+      <div class="dcard"><span class="ico">&#128336;</span><div><div class="caption1">Peak day and time</div><div class="v">${c.peak}</div></div></div>
+      <div class="dcard"><span class="ico">&#127970;</span><div><div class="caption1">Stores visited</div><div class="v">${c.stores}</div></div></div>
+    </div>
+    <div class="sec-title">Loyalty</div>
+    <div class="card-grid g2">
+      <div class="dcard"><span class="ico">&#127970;</span><div><div class="caption1">Favourite store</div><div class="v big">${c.favStore}</div></div></div>
+      <div class="dcard"><span class="ico">&#128717;</span><div><div class="caption1">Favourite channel</div><div class="v big">${c.channel}</div></div></div>
+    </div>`;
+}
+
+function renderReview(){
+  const rows=CUSTOMERS.map(c=>`
+    <tr onclick="reviewSelect('${c.name.replace(/'/g,"\\'")}')" style="cursor:pointer">
+      <td style="font-weight:600">${c.name}</td><td>${c.trade}</td><td>${c.tier}</td>
+      <td class="num">${£(scale(c.spend52))}</td><td class="num">${c.orders}</td>
+      <td><span class="status ${c.trend>=0?'done':'exp'}">${c.trend>=0?"+":""}${c.trend}%</span></td>
+    </tr>`).join("");
+  return `<section class="panel">
+    <div class="panel-head"><div class="panel-title">Account review</div>
+    <span class="caption1">${CUSTOMERS.length} active trade accounts &middot; ${STORES[state.storeIdx].name}</span></div>
+    <table>
+      <thead><tr><th>Account</th><th>Trade</th><th>Tier</th><th class="num">Spend, 52 wks</th><th class="num">Orders</th><th>Trend</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </section>`;
+}
+
+function renderUpgrade(){
+  const eligible=CUSTOMERS.filter(c=>c.tier!=="Gold" && c.trend>0);
+  const rows=eligible.map(c=>`
+    <div class="stat-item">
+      <div class="rank">&#9650;</div>
+      <div class="lab"><div class="caption1">${c.tier} &rarr; ${c.tier==="Bronze"?"Silver":"Gold"} &middot; trending +${c.trend}%</div>
+      <div class="v">${c.name}</div></div>
+      <button class="btn" style="margin:0;width:auto;padding:6px 14px" onclick="toast('Upgrade pack sent to ${c.name.replace(/'/g,"\\'")} (prototype)')">Send offer</button>
+    </div>`).join("");
+  return `<section class="panel">
+    <div class="panel-head"><div class="panel-title">Account upgrade</div>
+    <span class="caption1">${eligible.length} accounts eligible this week</span></div>
+    <div class="sec-title" style="margin-top:0">Upgrade candidates</div>
+    <div class="stat-list">${rows}</div>
+    <div class="sp-legend" style="border:none">Eligibility: positive 12-week trend and below Gold tier</div>
+  </section>`;
+}
+
+function renderQuotes(){
+  const quotes=[
+    ["QTE-2216","KJB Electrical Ltd","Consumer unit refit x3","£1,842.50","21 Jul 2026","open"],
+    ["QTE-2214","Southgate Property Maintenance","Landlord kit bundle","£684.20","20 Jul 2026","open"],
+    ["QTE-2209","Hartley Plumbing & Heating","Unvented cylinder + fittings","£1,266.75","18 Jul 2026","open"],
+    ["QTE-2201","Aqua Bathrooms & Tiling","Wet room package","£2,410.00","15 Jul 2026","done"],
+    ["QTE-2195","Fairfield Groundworks","Drainage materials","£3,882.40","12 Jul 2026","exp"],
+    ["QTE-2190","Brightway Decorating","Trade paint bulk order","£512.90","11 Jul 2026","done"],
+  ];
+  const lbl={open:"Open",done:"Converted",exp:"Expired"};
+  const rows=quotes.map(q=>`
+    <tr><td style="font-weight:600">${q[0]}</td><td>${q[1]}</td><td>${q[2]}</td>
+    <td class="num">${q[3]}</td><td>${q[4]}</td><td><span class="status ${q[5]}">${lbl[q[5]]}</span></td></tr>`).join("");
+  const openVal = "£3,793.45";
+  return `<section class="panel">
+    <div class="panel-head"><div class="panel-title">Quote tracker</div>
+    <span class="caption1">3 open quotes worth ${openVal}</span></div>
+    <table>
+      <thead><tr><th>Quote</th><th>Account</th><th>Description</th><th class="num">Value</th><th>Expires</th><th>Status</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="sp-legend" style="border:none;margin-top:10px">Conversion rate this period: 62% &middot; Ave time to convert: 3.4 days</div>
+  </section>`;
+}
+
+/* ============ ACTIONS ============ */
+function setPage(p){ state.page=p; render(); }
+function setLeftTab(t){ state.leftTab=t; render(); }
+function setRightTab(t){ state.rightTab=t; render(); }
+function selectCust(i){ state.custIdx=i; state.rightTab="overview"; render(); }
+function togglePerf(){ state.perfOpen=!state.perfOpen; render(); }
+function cyclePeriod(){
+  state.week = state.week>=26 ? 22 : state.week+1;
+  document.getElementById("weekVal").textContent=state.week;
+  document.getElementById("periodVal").textContent=Math.ceil(state.week/4);
+  toast("Reporting week set to "+state.week);
+  render();
+}
+function reviewSelect(name){
+  const i=CUSTOMERS.findIndex(c=>c.name===name);
+  if(i>-1){ state.custIdx=i; state.page="main"; state.rightTab="overview"; render(); toast("Opened "+name); }
+}
+
+function toggleTheme(){
+  document.body.classList.toggle("dark");
+  const dark=document.body.classList.contains("dark");
+  document.getElementById("themeIco").innerHTML = dark ? "&#9789;" : "&#9788;";
+  document.getElementById("themeLbl").textContent = dark ? "Light mode" : "Dark mode";
+}
+
+function openStoreModal(){
+  const list=document.getElementById("storeList");
+  list.innerHTML=STORES.map((s,i)=>`
+    <div class="store-opt ${i===state.storeIdx?'on':''}" onclick="pickStore(${i})">
+      <div class="n">${s.name}</div><div class="m">Store ${s.num} &middot; ${s.region}</div>
+    </div>`).join("");
+  document.getElementById("storeOverlay").classList.add("show");
+}
+function closeStoreModal(){ document.getElementById("storeOverlay").classList.remove("show"); }
+function pickStore(i){
+  state.storeIdx=i;
+  const s=STORES[i];
+  document.getElementById("storeName").textContent=s.name;
+  document.getElementById("storeMeta").innerHTML=`Store ${s.num} &middot; ${s.region}`;
+  closeStoreModal(); render();
+  toast("Switched to "+s.name);
+}
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trade Partner ToolBox: Dashboard Mockup (Fluent 2)</title>
+<style>
+  :root{
+    --purple:#4F52B2;
+    --purple-hover:#444791;
+    --purple-light:#EBEBFA;
+    --fg1:#242424;        /* neutralForeground1 */
+    --fg2:#424242;        /* neutralForeground2 */
+    --fg3:#616161;        /* neutralForeground3 */
+    --fg-disabled:#9E9E9E;
+    --card:#F5F5F5;       /* neutralBackground3 */
+    --stroke:#E6E6E6;
+    --good:#0E700E;
+    --good-bg:#F1FAF1;
+    --bad:#B10E1C;
+    --bad-bg:#FDF3F4;
+    --page:#EDEDF2;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    font-family:"Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    background:var(--page);
+    color:var(--fg1);
+    padding:16px;
+  }
+
+  /* ---------- Type roles (Fluent 2 ramp) ---------- */
+  .caption1{font-size:12px;line-height:16px;font-weight:400;color:var(--fg3);}
+  .caption1-strong{font-size:12px;line-height:16px;font-weight:600;color:var(--fg3);}
+  .body1{font-size:14px;line-height:20px;font-weight:400;color:var(--fg1);}
+  .body1-strong{font-size:14px;line-height:20px;font-weight:600;color:var(--fg1);}
+  .subtitle2{font-size:16px;line-height:22px;font-weight:600;color:var(--fg1);}
+  .subtitle1{font-size:20px;line-height:26px;font-weight:600;color:var(--fg1);}
+  .title2{font-size:28px;line-height:36px;font-weight:600;color:var(--fg1);}
+
+  .app{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:14px;
+    max-width:1360px;
+    margin:0 auto;
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{
+    background:#fff;border-radius:12px;border:1px solid var(--stroke);
+    padding:18px 16px;
+    display:flex;flex-direction:column;gap:22px;
+    min-height:760px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-logo{
+    width:36px;height:36px;border-radius:50%;
+    background:var(--fg1);color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:600;letter-spacing:.02em;
+  }
+  .brand-name{font-size:14px;line-height:18px;font-weight:600;}
+  .brand-name span{display:block;font-weight:400;color:var(--fg3);font-size:12px;}
+
+  .store-card{
+    background:var(--card);border-radius:8px;padding:14px;
+  }
+  .store-card .caption1{margin-bottom:2px;}
+  .store-name{font-size:16px;line-height:22px;font-weight:600;}
+  .store-meta{font-size:12px;line-height:16px;color:var(--fg3);margin-top:2px;}
+  .btn{
+    margin-top:12px;width:100%;
+    background:var(--purple);color:#fff;border:none;border-radius:6px;
+    font-family:inherit;font-size:14px;line-height:20px;font-weight:600;
+    padding:8px 12px;cursor:pointer;
+  }
+  .btn:hover{background:var(--purple-hover);}
+  .btn.secondary{
+    background:#fff;color:var(--purple);border:1px solid var(--purple);
+    font-weight:600;
+  }
+
+  .side-section{display:flex;flex-direction:column;gap:6px;}
+  .side-label{font-size:12px;line-height:16px;font-weight:600;color:var(--fg3);text-transform:uppercase;letter-spacing:.05em;}
+  .side-link{
+    display:flex;align-items:center;gap:10px;
+    font-size:14px;line-height:20px;color:var(--fg2);
+    padding:7px 8px;border-radius:6px;cursor:pointer;text-decoration:none;
+  }
+  .side-link:hover{background:var(--card);}
+  .side-link .ico{width:18px;text-align:center;color:var(--purple);}
+
+  .sidebar .spacer{flex:1;}
+  .profile{display:flex;align-items:center;gap:10px;padding-top:14px;border-top:1px solid var(--stroke);}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--purple-light);color:var(--purple);
+    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;}
+  .profile .who{font-size:12px;line-height:16px;color:var(--fg3);}
+  .profile .who b{display:block;font-size:13px;color:var(--fg1);font-weight:600;}
+
+  /* ---------- Main column ---------- */
+  .main{display:flex;flex-direction:column;gap:14px;}
+
+  .topbar{
+    background:#fff;border-radius:12px;border:1px solid var(--stroke);
+    padding:10px 18px;
+    display:flex;align-items:center;gap:6px;
+  }
+  .nav-item{
+    display:flex;align-items:center;gap:8px;
+    font-size:14px;line-height:20px;font-weight:400;color:var(--fg2);
+    padding:8px 14px;border-radius:6px;cursor:pointer;
+  }
+  .nav-item:hover{background:var(--card);}
+  .nav-item.active{
+    color:var(--purple);font-weight:600;background:var(--purple-light);
+  }
+  .nav-item .ico{color:var(--purple);}
+  .topbar .grow{flex:1;}
+  .period{
+    display:flex;align-items:center;gap:0;
+    background:var(--card);border-radius:8px;overflow:hidden;
+    border:1px solid var(--stroke);
+  }
+  .period .seg{
+    padding:7px 14px;display:flex;flex-direction:column;align-items:flex-start;cursor:pointer;
+  }
+  .period .seg:hover{background:#ECECEC;}
+  .period .seg + .seg{border-left:1px solid var(--stroke);}
+  .period .caption1{font-size:11px;line-height:14px;}
+  .period .val{font-size:14px;line-height:18px;font-weight:600;color:var(--fg1);}
+  .period .chev{padding:0 10px;color:var(--fg3);font-size:11px;}
+
+  .panel{
+    background:#fff;border-radius:12px;border:1px solid var(--stroke);
+    padding:20px 22px;
+  }
+  .panel-head{
+    display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;
+  }
+  .panel-title{font-size:16px;line-height:22px;font-weight:600;color:var(--purple);}
+  .collapse{color:var(--purple);cursor:pointer;font-size:13px;}
+
+  /* KPI strip */
+  .kpis{display:grid;grid-template-columns:1fr 1fr 1fr 1.2fr;}
+  .kpi{
+    padding:6px 24px;
+    border-right:1px solid var(--stroke);
+    display:flex;align-items:center;gap:14px;
+  }
+  .kpi:first-child{padding-left:4px;}
+  .kpi:last-child{border-right:none;}
+  .kpi-ico{
+    width:40px;height:40px;border-radius:50%;flex:none;
+    background:var(--purple-light);color:var(--purple);
+    display:flex;align-items:center;justify-content:center;font-size:17px;
+  }
+  .kpi .caption1{margin-bottom:2px;}
+  .kpi-value{font-size:28px;line-height:36px;font-weight:600;}
+  .kpi-delta{font-size:12px;line-height:16px;font-weight:600;margin-top:2px;display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:10px;}
+  .kpi-delta.pos{color:var(--good);background:var(--good-bg);}
+  .kpi-delta.neg{color:var(--bad);background:var(--bad-bg);}
+
+  .ring-wrap{display:flex;align-items:center;gap:16px;}
+  .ring{position:relative;width:76px;height:76px;flex:none;}
+  .ring svg{transform:rotate(-90deg);}
+  .ring .pct{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:18px;font-weight:600;color:var(--fg1);
+  }
+
+  /* Lower grid */
+  .lower{display:grid;grid-template-columns:340px 1fr;gap:0;}
+  .lower .col-left{border-right:1px solid var(--stroke);padding-right:20px;}
+  .lower .col-right{padding-left:22px;}
+
+  .tabs{display:flex;gap:20px;border-bottom:1px solid var(--stroke);margin-bottom:14px;}
+  .tab{
+    font-size:14px;line-height:20px;font-weight:400;color:var(--fg-disabled);
+    padding:6px 2px 9px;cursor:pointer;border-bottom:2px solid transparent;
+    display:flex;align-items:center;gap:7px;
+  }
+  .tab.active{color:var(--purple);font-weight:600;border-bottom-color:var(--purple);}
+
+  /* Spender rows */
+  .sp-row{
+    display:flex;align-items:center;gap:10px;
+    padding:11px 10px;border-radius:8px;cursor:pointer;
+    border:1px solid transparent;
+  }
+  .sp-row:hover{background:var(--card);}
+  .sp-row.selected{background:var(--purple-light);border-color:#C9C9F0;}
+  .sp-row + .sp-row{margin-top:2px;}
+  .sp-arrow{width:16px;text-align:center;font-size:12px;flex:none;}
+  .sp-cols{display:flex;flex:1;gap:0;}
+  .sp-col{flex:1;min-width:0;}
+  .sp-col .caption1{font-size:11px;line-height:14px;margin-bottom:1px;}
+  .sp-col .v{font-size:14px;line-height:20px;font-weight:600;font-variant-numeric:tabular-nums;}
+  .sp-chev{color:var(--purple);font-size:12px;flex:none;}
+  .sp-legend{margin-top:12px;padding-top:10px;border-top:1px solid var(--stroke);
+    font-size:11px;line-height:15px;color:var(--fg-disabled);}
+
+  /* Right side sections */
+  .sec-title{font-size:16px;line-height:22px;font-weight:600;color:var(--purple);margin:4px 0 10px;}
+  .card-grid{display:grid;gap:10px;margin-bottom:18px;}
+  .g3{grid-template-columns:repeat(3,1fr) auto;}
+  .g4{grid-template-columns:repeat(4,1fr);}
+  .g2{grid-template-columns:1fr 1fr;}
+  .dcard{
+    background:var(--card);border-radius:8px;padding:12px 14px;
+    display:flex;align-items:flex-start;gap:10px;
+  }
+  .dcard .ico{color:var(--purple);font-size:15px;margin-top:2px;flex:none;}
+  .dcard .caption1{margin-bottom:2px;}
+  .dcard .v{font-size:16px;line-height:22px;font-weight:600;}
+  .dcard .v.big{font-size:20px;line-height:26px;}
+  .trend-pill{
+    display:flex;flex-direction:column;justify-content:center;align-items:center;
+    background:var(--good-bg);border-radius:8px;padding:12px 16px;min-width:92px;
+  }
+  .trend-pill .caption1{color:var(--good);font-weight:600;margin-bottom:1px;}
+  .trend-pill .v{font-size:16px;line-height:22px;font-weight:600;color:var(--good);}
+
+  @media (max-width:1080px){
+    .app{grid-template-columns:1fr;}
+    .sidebar{min-height:0;}
+    .kpis{grid-template-columns:1fr 1fr;}
+    .kpi{border-right:none;border-bottom:1px solid var(--stroke);padding:12px 4px;}
+    .lower{grid-template-columns:1fr;}
+    .lower .col-left{border-right:none;padding-right:0;margin-bottom:20px;}
+    .lower .col-right{padding-left:0;}
+    .g3,.g4{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">TP</div>
+      <div class="brand-name">Trade Partner<span>ToolBox</span></div>
+    </div>
+
+    <div class="store-card">
+      <div class="caption1">Selected store</div>
+      <div class="store-name">Winchester</div>
+      <div class="store-meta">Store 4127 &middot; South Central</div>
+      <button class="btn secondary">Change store</button>
+    </div>
+
+    <div class="side-section">
+      <div class="side-label">Preferences</div>
+      <a class="side-link"><span class="ico">&#9788;</span>Light / dark mode</a>
+    </div>
+
+    <div class="side-section">
+      <div class="side-label">Support</div>
+      <a class="side-link"><span class="ico">&#9993;</span>Report a problem</a>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="profile">
+      <div class="avatar">CO</div>
+      <div class="who"><b>Central Ops</b>SRV-SFXCentralOps</div>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main class="main">
+
+    <!-- Top navigation -->
+    <div class="topbar">
+      <div class="nav-item active"><span class="ico">&#8962;</span>Main menu</div>
+      <div class="nav-item"><span class="ico">&#9998;</span>Account review</div>
+      <div class="nav-item"><span class="ico">&#10133;</span>Account upgrade</div>
+      <div class="nav-item"><span class="ico">&#163;</span>Quote tracker</div>
+      <div class="grow"></div>
+      <div class="period" title="Change reporting period">
+        <div class="seg"><span class="caption1">Period</span><span class="val">6</span></div>
+        <div class="seg"><span class="caption1">Week</span><span class="val">24</span></div>
+        <div class="chev">&#9662;</div>
+      </div>
+    </div>
+
+    <!-- Performance overview -->
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Performance overview</div>
+        <div class="collapse">&#9650;</div>
+      </div>
+      <div class="kpis">
+        <div class="kpi">
+          <div class="kpi-ico">&#163;</div>
+          <div>
+            <div class="caption1">Yesterday's sales</div>
+            <div class="kpi-value">&pound;4,434.87</div>
+            <span class="kpi-delta neg">&#9660; 3.2% vs last Tue</span>
+          </div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-ico">&#163;</div>
+          <div>
+            <div class="caption1">Week 24 sales</div>
+            <div class="kpi-value">&pound;17,131.68</div>
+            <span class="kpi-delta pos">&#9650; 5.8% vs week 23</span>
+          </div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-ico">&#9678;</div>
+          <div>
+            <div class="caption1">Weekly target</div>
+            <div class="kpi-value">&pound;21,481.91</div>
+            <span class="caption1">&pound;4,350.23 to go</span>
+          </div>
+        </div>
+        <div class="kpi">
+          <div class="ring-wrap">
+            <div class="ring">
+              <svg width="76" height="76" viewBox="0 0 76 76">
+                <circle cx="38" cy="38" r="32" fill="none" stroke="#EBEBFA" stroke-width="8"/>
+                <circle cx="38" cy="38" r="32" fill="none" stroke="#4F52B2" stroke-width="8"
+                        stroke-linecap="round" stroke-dasharray="201" stroke-dashoffset="40"/>
+              </svg>
+              <div class="pct">80%</div>
+            </div>
+            <div>
+              <div class="caption1">Progress to target</div>
+              <div class="subtitle2">On track</div>
+              <div class="caption1">2 trading days left</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lower panel -->
+    <section class="panel">
+      <div class="lower">
+
+        <!-- Left: spenders -->
+        <div class="col-left">
+          <div class="tabs">
+            <div class="tab"><span>&#127942;</span>Top stats</div>
+            <div class="tab active"><span>&#128101;</span>Spenders</div>
+          </div>
+
+          <div class="sp-row">
+            <span class="sp-arrow" style="color:var(--bad)">&#9660;</span>
+            <div class="sp-cols">
+              <div class="sp-col"><div class="caption1">Customer</div><div class="v">2540 9321 777</div></div>
+              <div class="sp-col"><div class="caption1">Spend</div><div class="v">&pound;500.00</div></div>
+              <div class="sp-col"><div class="caption1">Orders</div><div class="v">127</div></div>
+            </div>
+            <span class="sp-chev">&#9654;</span>
+          </div>
+
+          <div class="sp-row selected">
+            <span class="sp-arrow" style="color:var(--good)">&#9650;</span>
+            <div class="sp-cols">
+              <div class="sp-col"><div class="caption1">Customer</div><div class="v">1337 0483 524</div></div>
+              <div class="sp-col"><div class="caption1">Spend</div><div class="v">&pound;500.00</div></div>
+              <div class="sp-col"><div class="caption1">Orders</div><div class="v">127</div></div>
+            </div>
+            <span class="sp-chev">&#9654;</span>
+          </div>
+
+          <div class="sp-row">
+            <span class="sp-arrow" style="color:var(--good)">&#9650;</span>
+            <div class="sp-cols">
+              <div class="sp-col"><div class="caption1">Customer</div><div class="v">1223 8193 048</div></div>
+              <div class="sp-col"><div class="caption1">Spend</div><div class="v">&pound;500.00</div></div>
+              <div class="sp-col"><div class="caption1">Orders</div><div class="v">127</div></div>
+            </div>
+            <span class="sp-chev">&#9654;</span>
+          </div>
+
+          <div class="sp-row">
+            <span class="sp-arrow" style="color:var(--good)">&#9650;</span>
+            <div class="sp-cols">
+              <div class="sp-col"><div class="caption1">Customer</div><div class="v">1584 8953 191</div></div>
+              <div class="sp-col"><div class="caption1">Spend</div><div class="v">&pound;500.00</div></div>
+              <div class="sp-col"><div class="caption1">Orders</div><div class="v">127</div></div>
+            </div>
+            <span class="sp-chev">&#9654;</span>
+          </div>
+
+          <div class="sp-row">
+            <span class="sp-arrow" style="color:var(--bad)">&#9660;</span>
+            <div class="sp-cols">
+              <div class="sp-col"><div class="caption1">Customer</div><div class="v">0677 6645 033</div></div>
+              <div class="sp-col"><div class="caption1">Spend</div><div class="v">&pound;500.00</div></div>
+              <div class="sp-col"><div class="caption1">Orders</div><div class="v">127</div></div>
+            </div>
+            <span class="sp-chev">&#9654;</span>
+          </div>
+
+          <div class="sp-legend">&#9650;&#9660; Spend vs previous 12-week average &middot; Select a customer to view their profile</div>
+        </div>
+
+        <!-- Right: customer detail -->
+        <div class="col-right">
+          <div class="tabs">
+            <div class="tab active"><span>&#128100;</span>Overview</div>
+            <div class="tab"><span>&#128203;</span>Orders</div>
+          </div>
+
+          <div class="sec-title">Spend trend</div>
+          <div class="card-grid g3">
+            <div class="dcard"><div>
+              <div class="caption1">Ave spend, 52 weeks</div><div class="v">&pound;18,400</div>
+            </div></div>
+            <div class="dcard"><div>
+              <div class="caption1">Ave spend, 12 weeks</div><div class="v">&pound;6,400</div>
+            </div></div>
+            <div class="dcard"><div>
+              <div class="caption1">Ave spend, 3 weeks</div><div class="v">&pound;1,400</div>
+            </div></div>
+            <div class="trend-pill">
+              <div class="caption1">Trend</div>
+              <div class="v">&#8599; +12%</div>
+            </div>
+          </div>
+
+          <div class="sec-title">Habits</div>
+          <div class="card-grid g4">
+            <div class="dcard"><span class="ico">&#128197;</span><div>
+              <div class="caption1">Most common day</div><div class="v">Tuesday</div>
+            </div></div>
+            <div class="dcard"><span class="ico">&#128336;</span><div>
+              <div class="caption1">Most common time</div><div class="v">08:00 - 10:00</div>
+            </div></div>
+            <div class="dcard"><span class="ico">&#128336;</span><div>
+              <div class="caption1">Peak day and time</div><div class="v">Tue 10:00 - 13:00</div>
+            </div></div>
+            <div class="dcard"><span class="ico">&#127970;</span><div>
+              <div class="caption1">Stores visited</div><div class="v">4</div>
+            </div></div>
+          </div>
+
+          <div class="sec-title">Loyalty</div>
+          <div class="card-grid g2">
+            <div class="dcard"><span class="ico">&#127970;</span><div>
+              <div class="caption1">Favourite store</div><div class="v big">Winchester</div>
+            </div></div>
+            <div class="dcard"><span class="ico">&#128717;</span><div>
+              <div class="caption1">Favourite channel</div><div class="v big">Branch</div>
+            </div></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>
