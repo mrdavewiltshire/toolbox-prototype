@@ -421,14 +421,14 @@ const STOCK_ITEMS = [
   {name:"Bahco adjustable spanner set", stock:{Winchester:9, Yeovil:6, Dorchester:0, Basingstoke:13}},
 ];
 const SKU_CATALOG = [
-  {sku:"48221", name:"Erbauer EXT 18V combi drill", price:169.99},
-  {sku:"60214", name:"DeWalt XR brushless impact driver", price:139.99},
-  {sku:"33190", name:"Tower flat twin & earth 2.5mm x 100m", price:89.99},
-  {sku:"71042", name:"FloPlast solvent weld waste 40mm 3m", price:12.49},
-  {sku:"55678", name:"No Nonsense trade sealant clear", price:6.99},
-  {sku:"29981", name:"Bahco adjustable spanner set", price:34.99},
-  {sku:"81023", name:"Makita 18V brushless angle grinder", price:119.99},
-  {sku:"40456", name:"Polypipe push-fit elbow 22mm", price:3.29},
+  {sku:"ER482", name:"Erbauer EXT 18V combi drill", price:169.99},
+  {sku:"DW602", name:"DeWalt XR brushless impact driver", price:139.99},
+  {sku:"TW331", name:"Tower flat twin & earth 2.5mm x 100m", price:89.99},
+  {sku:"FP710", name:"FloPlast solvent weld waste 40mm 3m", price:12.49},
+  {sku:"NN556", name:"No Nonsense trade sealant clear", price:6.99},
+  {sku:"BA299", name:"Bahco adjustable spanner set", price:34.99},
+  {sku:"MK810", name:"Makita 18V brushless angle grinder", price:119.99},
+  {sku:"PP404", name:"Polypipe push-fit elbow 22mm", price:3.29},
 ];
 /* Volume-discount tiers applied to the bulk quote subtotal */
 const DISCOUNT_TIERS = [
@@ -1022,15 +1022,15 @@ function renderDiscountTool(){
   return `
     <div class="tool-field">
       <label class="caption1">Paste SKUs and quantities (one per line, e.g. from a copied PDF)</label>
-      <textarea id="qdBulk" rows="5" placeholder="48221 x4&#10;60214, 2&#10;71042 6" oninput="calcDiscount()"></textarea>
+      <textarea id="qdBulk" rows="5" placeholder="ER482 x4&#10;DW602, 2&#10;FP710 6" oninput="calcDiscount()"></textarea>
     </div>
     <div id="qdResults"></div>
-    <div class="sp-legend" style="border:none">Accepts SKU then quantity, separated by a space, comma or "x" &middot; tiers: ${DISCOUNT_TIERS.map(t=>gbp(t.min)+" = "+t.pct+"%").join(", ")}</div>`;
+    <div class="sp-legend" style="border:none">Accepts a 5-character SKU then quantity, separated by a space, comma or "x" &middot; tiers: ${DISCOUNT_TIERS.map(t=>gbp(t.min)+" = "+t.pct+"%").join(", ")}</div>`;
 }
 function parseSkuLine(line){
-  const m = line.trim().match(/^(\d{3,6})\s*[x,]?\s*(\d{1,4})/i);
+  const m = line.trim().match(/^([A-Za-z0-9]{5})\s*[x,]?\s*(\d{1,4})/i);
   if(!m) return null;
-  const sku = m[1], qty = parseInt(m[2],10);
+  const sku = m[1].toUpperCase(), qty = parseInt(m[2],10);
   const item = SKU_CATALOG.find(p=>p.sku===sku);
   return {sku, qty, item};
 }
