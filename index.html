@@ -96,6 +96,9 @@
   .nav-item.active{color:var(--purple);font-weight:600;background:var(--purple-light);}
   .nav-badge{background:var(--purple);color:#fff;font-size:10px;font-weight:700;min-width:16px;height:16px;
     border-radius:8px;display:inline-flex;align-items:center;justify-content:center;padding:0 4px;}
+  .nav-manager{display:none;}
+  body.manager-view .nav-colleague{display:none;}
+  body.manager-view .nav-manager{display:flex;}
   .topbar .grow{flex:1;}
   .period{display:flex;align-items:center;background:var(--card);border-radius:8px;border:1px solid var(--stroke);cursor:pointer;user-select:none;}
   .period .seg{padding:7px 14px;display:flex;flex-direction:column;}
@@ -277,6 +280,10 @@
       <button class="btn secondary" onclick="openStoreModal()">Change store</button>
     </div>
     <div class="side-section">
+      <div class="side-label">View</div>
+      <div class="side-link" onclick="toggleRole()"><span class="ico" id="roleIco">&#128100;</span><span id="roleLbl">Switch to manager view</span></div>
+    </div>
+    <div class="side-section">
       <div class="side-label">Preferences</div>
       <div class="side-link" onclick="toggleTheme()"><span class="ico" id="themeIco">&#9788;</span><span id="themeLbl">Dark mode</span></div>
     </div>
@@ -300,13 +307,14 @@
 
   <main class="main">
     <div class="topbar">
-      <div class="nav-item" data-page="main" onclick="setPage('main')"><span style="color:var(--purple)">&#8962;</span>Main menu</div>
-      <div class="nav-item" data-page="actions" onclick="setPage('actions')"><span style="color:var(--purple)">&#9889;</span>Actions<span class="nav-badge" id="actionsBadge">0</span></div>
-      <div class="nav-item" data-page="review" onclick="setPage('review')"><span style="color:var(--purple)">&#9998;</span>Account review</div>
-      <div class="nav-item" data-page="upgrade" onclick="setPage('upgrade')"><span style="color:var(--purple)">&#10133;</span>Account upgrade</div>
-      <div class="nav-item" data-page="quotes" onclick="setPage('quotes')"><span style="color:var(--purple)">&#163;</span>Quote tracker</div>
-      <div class="nav-item" data-page="rewards" onclick="setPage('rewards')"><span style="color:var(--purple)">&#11088;</span>Rewards</div>
-      <div class="nav-item" data-page="jobs" onclick="setPage('jobs')"><span style="color:var(--purple)">&#128736;</span>Jobs</div>
+      <div class="nav-item nav-colleague" data-page="main" onclick="setPage('main')"><span style="color:var(--purple)">&#8962;</span>Main menu</div>
+      <div class="nav-item nav-colleague" data-page="actions" onclick="setPage('actions')"><span style="color:var(--purple)">&#9889;</span>Actions<span class="nav-badge" id="actionsBadge">0</span></div>
+      <div class="nav-item nav-colleague" data-page="review" onclick="setPage('review')"><span style="color:var(--purple)">&#9998;</span>Account review</div>
+      <div class="nav-item nav-colleague" data-page="upgrade" onclick="setPage('upgrade')"><span style="color:var(--purple)">&#10133;</span>Account upgrade</div>
+      <div class="nav-item nav-colleague" data-page="quotes" onclick="setPage('quotes')"><span style="color:var(--purple)">&#163;</span>Quote tracker</div>
+      <div class="nav-item nav-colleague" data-page="rewards" onclick="setPage('rewards')"><span style="color:var(--purple)">&#11088;</span>Rewards</div>
+      <div class="nav-item nav-colleague" data-page="jobs" onclick="setPage('jobs')"><span style="color:var(--purple)">&#128736;</span>Jobs</div>
+      <div class="nav-item nav-manager" data-page="manager" onclick="setPage('manager')"><span style="color:var(--purple)">&#128202;</span>Store overview</div>
       <div class="grow"></div>
       <div class="period" onclick="cyclePeriod()" title="Click to cycle reporting week (prototype)">
         <div class="seg"><span class="caption1">Period</span><span class="val" id="periodVal">6</span></div>
@@ -481,6 +489,7 @@ const CATEGORY_BRAND_KEY = {"Power tools":"powerTools", "Plumbing":"plumbing", "
 /* ============ STATE ============ */
 let state = {
   page:"main",
+  role:"colleague",
   storeIdx:0,
   custIdx:1,
   leftTab:"spenders",
@@ -518,7 +527,9 @@ function toast(msg){
 }
 
 /* Store-dependent scaling so changing store visibly reseeds numbers */
-function scale(n){ const f=[1,0.82,0.64,1.13][state.storeIdx]; return Math.round(n*f); }
+const STORE_FACTORS = [1, 0.82, 0.64, 1.13];
+function scaleFor(n, idx){ return Math.round(n*STORE_FACTORS[idx]); }
+function scale(n){ return scaleFor(n, state.storeIdx); }
 
 /* ============ RENDER ============ */
 function render(){
@@ -533,6 +544,7 @@ function render(){
   else if(state.page==="upgrade") host.innerHTML=renderUpgrade();
   else if(state.page==="rewards") host.innerHTML=renderRewardsPage();
   else if(state.page==="jobs") host.innerHTML=renderJobsPage();
+  else if(state.page==="manager") host.innerHTML=renderManagerPage();
   else host.innerHTML=renderQuotes();
 }
 
@@ -895,6 +907,61 @@ function renderJobsPage(){
   </section>`;
 }
 
+function renderManagerPage(){
+  const storeRows = STORES.map((s,i)=>{
+    const wsales = scaleFor(1713168,i)/100;
+    const target = scaleFor(2148191,i)/100;
+    const pct = Math.min(99,Math.round(wsales/target*100));
+    const points = CUSTOMERS.reduce((sum,c)=>sum+scaleFor(c.spend52,i),0);
+    return `<tr ${i===state.storeIdx?'style="background:var(--card)"':''}>
+      <td style="font-weight:600">${s.name}${i===state.storeIdx?' <span class="caption1">(selected)</span>':''}</td>
+      <td class="num">${gbp(wsales)}</td>
+      <td class="num">${gbp(target)}</td>
+      <td class="num">${pct}%</td>
+      <td class="num">${points.toLocaleString("en-GB")} pts</td>
+    </tr>`;
+  }).join("");
+
+  const allJobs = CUSTOMERS.flatMap(c=>c.jobs);
+  const pipelineValue = allJobs.filter(j=>j.stage!=="Complete").reduce((s,j)=>s+j.value,0);
+  const jobFollowUps = CUSTOMERS.filter(c=>c.jobs.some(j=>j.stage!=="Complete")).length;
+  const rewardsOpps = CUSTOMERS.filter(c=>rewardsInfo(c).next).length;
+  const expiringQuotes = QUOTES.filter(q=>q[5]==="open").length;
+  const upgradeCandidates = CUSTOMERS.filter(c=>c.tier!=="Gold" && c.trend>0).length;
+
+  const atRisk = CUSTOMERS.map((c,i)=>({c,i})).filter(x=>x.c.trend<0).sort((a,b)=>a.c.trend-b.c.trend);
+  const riskRows = atRisk.map(({c,i})=>`
+    <div class="stat-item">
+      <div class="rank" style="background:var(--bad-bg);color:var(--bad)">&#9660;</div>
+      <div class="lab"><div class="caption1">${c.trade} &middot; ${c.tier} &middot; ${c.trend}% vs last period</div><div class="v">${c.name}</div></div>
+      <button class="btn secondary" style="width:auto;padding:6px 14px;margin:0" onclick="viewCustJobs(${i})">View account</button>
+    </div>`).join("") || `<div class="empty">No accounts currently trending down</div>`;
+
+  return `<section class="panel">
+    <div class="panel-head"><div class="panel-title">Store overview</div>
+    <span class="caption1">Manager view &middot; Week ${state.week}</span></div>
+
+    <div class="sec-title" style="margin-top:0">Store comparison</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Store</th><th class="num">Week sales</th><th class="num">Weekly target</th><th class="num">Progress</th><th class="num">Rewards points</th></tr></thead>
+      <tbody>${storeRows}</tbody>
+    </table></div>
+
+    <div class="sec-title">Actions summary, ${STORES[state.storeIdx].name}</div>
+    <div class="card-grid g4">
+      <div class="dcard"><span class="ico">&#128276;</span><div><div class="caption1">Job follow-ups</div><div class="v big">${jobFollowUps}</div></div></div>
+      <div class="dcard"><span class="ico">&#11088;</span><div><div class="caption1">Rewards opportunities</div><div class="v big">${rewardsOpps}</div></div></div>
+      <div class="dcard"><span class="ico">&#163;</span><div><div class="caption1">Expiring quotes</div><div class="v big">${expiringQuotes}</div></div></div>
+      <div class="dcard"><span class="ico">&#10133;</span><div><div class="caption1">Upgrade candidates</div><div class="v big">${upgradeCandidates}</div></div></div>
+    </div>
+    <div class="caption1" style="margin:-8px 0 18px">Open job pipeline value: ${gbp(pipelineValue)}</div>
+
+    <div class="sec-title">At-risk accounts</div>
+    <div class="stat-list">${riskRows}</div>
+    <div class="sp-legend" style="border:none;margin-top:10px">Sorted by steepest decline &middot; consider a retention call before the account churns</div>
+  </section>`;
+}
+
 function renderQuotes(){
   const lbl={open:"Open",done:"Converted",exp:"Expired"};
   const rows=QUOTES.map(q=>`
@@ -917,7 +984,7 @@ function setPage(p){ state.page=p; render(); }
 function setLeftTab(t){ state.leftTab=t; render(); }
 function setRightTab(t){ state.rightTab=t; render(); }
 function selectCust(i){ state.custIdx=i; state.rightTab="overview"; render(); }
-function viewCustJobs(i){ state.page="main"; state.custIdx=i; state.rightTab="jobs"; render(); }
+function viewCustJobs(i){ setRole(false); state.page="main"; state.custIdx=i; state.rightTab="jobs"; render(); }
 function togglePerf(){ state.perfOpen=!state.perfOpen; render(); }
 function cyclePeriod(){
   state.week = state.week>=26 ? 22 : state.week+1;
@@ -936,6 +1003,19 @@ function toggleTheme(){
   const dark=document.body.classList.contains("dark");
   document.getElementById("themeIco").innerHTML = dark ? "&#9789;" : "&#9788;";
   document.getElementById("themeLbl").textContent = dark ? "Light mode" : "Dark mode";
+}
+
+function setRole(manager){
+  state.role = manager ? "manager" : "colleague";
+  document.body.classList.toggle("manager-view", manager);
+  document.getElementById("roleIco").innerHTML = manager ? "&#128188;" : "&#128100;";
+  document.getElementById("roleLbl").textContent = manager ? "Switch to colleague view" : "Switch to manager view";
+}
+function toggleRole(){
+  const manager = state.role!=="manager";
+  setRole(manager);
+  state.page = manager ? "manager" : "main";
+  render();
 }
 
 function openStoreModal(){

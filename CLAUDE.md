@@ -29,9 +29,10 @@ Principles: labels whisper, values speak, only section headers and navigation ge
 
 ## Architecture (keep it this way)
 - One global `state` object; `render()` re-renders the active page into `#pageHost`.
-- Pages: main (dashboard), review, upgrade, quotes, rewards. Each is a `render*()` function returning an HTML string.
-- Dummy data lives in the constants at the top of the script (STORES, CUSTOMERS, TOP_PRODUCTS, WEEK_SALES).
-- Store switching scales all figures via `scale()` so each store looks distinct.
+- Pages: main (dashboard), actions, review, upgrade, quotes, rewards, jobs, manager. Each is a `render*()` function returning an HTML string.
+- `state.role` ("colleague" or "manager") toggles a `body.manager-view` class that swaps which top-nav items are visible (`.nav-colleague` vs `.nav-manager`); manager view is a single Store overview page, colleague view is everything else.
+- Dummy data lives in the constants at the top of the script (STORES, CUSTOMERS, TOP_PRODUCTS, WEEK_SALES, QUOTES, SKU_CATALOG, STOCK_ITEMS).
+- Store switching scales all figures via `scale()` (or `scaleFor(n, storeIdx)` when computing another store's figures without changing state) so each store looks distinct.
 - Keep event handling as inline `onclick` calling small named functions; this mirrors how a maker would read it.
 
 ## Testing changes
