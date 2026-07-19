@@ -94,6 +94,8 @@
     padding:8px 14px;border-radius:6px;cursor:pointer;user-select:none;}
   .nav-item:hover{background:var(--card);}
   .nav-item.active{color:var(--purple);font-weight:600;background:var(--purple-light);}
+  .nav-badge{background:var(--purple);color:#fff;font-size:10px;font-weight:700;min-width:16px;height:16px;
+    border-radius:8px;display:inline-flex;align-items:center;justify-content:center;padding:0 4px;}
   .topbar .grow{flex:1;}
   .period{display:flex;align-items:center;background:var(--card);border-radius:8px;border:1px solid var(--stroke);cursor:pointer;user-select:none;}
   .period .seg{padding:7px 14px;display:flex;flex-direction:column;}
@@ -275,6 +277,7 @@
   <main class="main">
     <div class="topbar">
       <div class="nav-item" data-page="main" onclick="setPage('main')"><span style="color:var(--purple)">&#8962;</span>Main menu</div>
+      <div class="nav-item" data-page="actions" onclick="setPage('actions')"><span style="color:var(--purple)">&#9889;</span>Actions<span class="nav-badge" id="actionsBadge">0</span></div>
       <div class="nav-item" data-page="review" onclick="setPage('review')"><span style="color:var(--purple)">&#9998;</span>Account review</div>
       <div class="nav-item" data-page="upgrade" onclick="setPage('upgrade')"><span style="color:var(--purple)">&#10133;</span>Account upgrade</div>
       <div class="nav-item" data-page="quotes" onclick="setPage('quotes')"><span style="color:var(--purple)">&#163;</span>Quote tracker</div>
@@ -471,8 +474,10 @@ function render(){
   document.querySelectorAll(".nav-item").forEach(el=>{
     el.classList.toggle("active", el.dataset.page===state.page);
   });
+  document.getElementById("actionsBadge").textContent = computeDailyActions().length;
   const host=document.getElementById("pageHost");
   if(state.page==="main") host.innerHTML=renderMain();
+  else if(state.page==="actions") host.innerHTML=renderDailyActions();
   else if(state.page==="review") host.innerHTML=renderReview();
   else if(state.page==="upgrade") host.innerHTML=renderUpgrade();
   else if(state.page==="rewards") host.innerHTML=renderRewardsPage();
@@ -580,7 +585,6 @@ function renderMain(){
     </div>` : `<div class="caption1">Collapsed. Select the chevron to expand.</div>`;
 
   return `
-  ${renderDailyActions()}
   <section class="panel">
     <div class="panel-head">
       <div class="panel-title">Performance overview</div>
