@@ -171,6 +171,10 @@
 
   .reward-track{background:var(--card);border-radius:6px;height:8px;overflow:hidden;margin-bottom:6px;}
   .reward-fill{background:var(--purple);height:100%;border-radius:6px;transition:width .2s;}
+  .mix-track{display:flex;height:8px;border-radius:6px;overflow:hidden;background:var(--card);margin:5px 0 6px;}
+  .mix-seg.branch{background:var(--purple);}
+  .mix-seg.collect{background:var(--gold);}
+  .mix-seg.delivery{background:var(--good);}
   .upsell-card{background:var(--purple-light);border-radius:8px;padding:14px 16px;margin-bottom:18px;}
   .truncate{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:inline-block;max-width:260px;vertical-align:bottom;}
   .upsell-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
@@ -307,7 +311,7 @@ const STORES = [
 
 const CUSTOMERS = [
   {num:"2540 9321 777", name:"Hartley Plumbing & Heating", trade:"Plumber", spend52:24870, spend12:4210, spend3:640, orders:214, trend:-8,
-   day:"Monday", time:"07:00 - 09:00", peak:"Mon 07:00 - 09:00", stores:2, favStore:"Winchester", channel:"Branch", tier:"Gold",
+   day:"Monday", time:"07:00 - 09:00", peak:"Mon 07:00 - 09:00", stores:2, favStore:"Winchester", channelMix:{branch:64, collect:21, delivery:15}, tier:"Gold",
    brands:{powerTools:"DeWalt", handTools:"Bahco", plumbing:"FloPlast", electrical:"Tower"},
    jobs:[
      {title:"Boiler swap, 14 Elm Road", stage:"In progress", value:1850, due:"25 Jul 2026", note:"Customer wants a call before final fix, prefers afternoons"},
@@ -315,7 +319,7 @@ const CUSTOMERS = [
    ],
    orderRows:[["A41022088213","14 Jul 2026",6,"£214.60","Collected"],["A41022087901","10 Jul 2026",11,"£486.12","Collected"],["A41022087544","07 Jul 2026",3,"£92.40","Delivered"],["A41022087102","01 Jul 2026",9,"£337.85","Collected"],["A41022086690","26 Jun 2026",14,"£611.02","Delivered"]]},
   {num:"1337 0483 524", name:"KJB Electrical Ltd", trade:"Electrician", spend52:18400, spend12:6400, spend3:1400, orders:127, trend:12,
-   day:"Tuesday", time:"08:00 - 10:00", peak:"Tue 10:00 - 13:00", stores:4, favStore:"Winchester", channel:"Branch", tier:"Gold",
+   day:"Tuesday", time:"08:00 - 10:00", peak:"Tue 10:00 - 13:00", stores:4, favStore:"Winchester", channelMix:{branch:58, collect:27, delivery:15}, tier:"Gold",
    brands:{powerTools:"Makita", handTools:"Stanley", plumbing:"Polypipe", electrical:"Wago"},
    jobs:[
      {title:"Consumer unit upgrade, Riverside Flats", stage:"In progress", value:2450, due:"22 Jul 2026", note:"Landlord needs sign-off certificate emailed same day"},
@@ -323,7 +327,7 @@ const CUSTOMERS = [
    ],
    orderRows:[["A41022088377","16 Jul 2026",8,"£342.18","Collected"],["A41022088015","12 Jul 2026",5,"£188.90","Collected"],["A41022087610","08 Jul 2026",12,"£529.44","Delivered"],["A41022087233","03 Jul 2026",4,"£141.20","Collected"],["A41022086801","28 Jun 2026",10,"£410.66","Collected"]]},
   {num:"1223 8193 048", name:"Southgate Property Maintenance", trade:"Maintenance", spend52:15920, spend12:4780, spend3:1120, orders:186, trend:9,
-   day:"Wednesday", time:"09:00 - 11:00", peak:"Wed 09:00 - 11:00", stores:3, favStore:"Basingstoke", channel:"Click & Collect", tier:"Silver",
+   day:"Wednesday", time:"09:00 - 11:00", peak:"Wed 09:00 - 11:00", stores:3, favStore:"Basingstoke", channelMix:{branch:22, collect:57, delivery:21}, tier:"Silver",
    brands:{powerTools:"Bosch", handTools:"Irwin", plumbing:"FloPlast", electrical:"Tower"},
    jobs:[
      {title:"Communal repairs, Beech Court", stage:"Complete", value:1620, due:"10 Jul 2026", note:"Invoice sent, chase payment if not cleared by month end"},
@@ -331,14 +335,14 @@ const CUSTOMERS = [
    ],
    orderRows:[["A41022088290","15 Jul 2026",7,"£268.31","Collected"],["A41022087880","09 Jul 2026",9,"£374.09","Collected"],["A41022087401","05 Jul 2026",6,"£212.77","Delivered"],["A41022086950","30 Jun 2026",13,"£487.55","Collected"]]},
   {num:"1584 8953 191", name:"D. Mercer Carpentry", trade:"Carpenter", spend52:9640, spend12:3350, spend3:980, orders:98, trend:17,
-   day:"Friday", time:"07:00 - 09:00", peak:"Fri 07:00 - 09:00", stores:1, favStore:"Winchester", channel:"Branch", tier:"Silver",
+   day:"Friday", time:"07:00 - 09:00", peak:"Fri 07:00 - 09:00", stores:1, favStore:"Winchester", channelMix:{branch:70, collect:18, delivery:12}, tier:"Silver",
    brands:{powerTools:"DeWalt", handTools:"Bahco", plumbing:"Polypipe", electrical:"MK Electric"},
    jobs:[
      {title:"Fitted wardrobes, Church Street", stage:"In progress", value:2100, due:"24 Jul 2026", note:"Customer changed door colour, confirm new stock lead time"},
    ],
    orderRows:[["A41022088401","17 Jul 2026",4,"£156.80","Collected"],["A41022087995","11 Jul 2026",8,"£302.45","Collected"],["A41022087520","06 Jul 2026",5,"£178.12","Collected"]]},
   {num:"0677 6645 033", name:"Fairfield Groundworks", trade:"Groundworker", spend52:31200, spend12:5100, spend3:410, orders:156, trend:-21,
-   day:"Monday", time:"06:00 - 08:00", peak:"Mon 06:00 - 08:00", stores:2, favStore:"Yeovil", channel:"Delivery", tier:"Gold",
+   day:"Monday", time:"06:00 - 08:00", peak:"Mon 06:00 - 08:00", stores:2, favStore:"Yeovil", channelMix:{branch:15, collect:20, delivery:65}, tier:"Gold",
    brands:{powerTools:"Makita", handTools:"Stanley", plumbing:"FloPlast", electrical:"Tower"},
    jobs:[
      {title:"Site drainage, Hollow Way development", stage:"In progress", value:8600, due:"31 Jul 2026", note:"Site manager wants deliveries before 7am only"},
@@ -346,14 +350,14 @@ const CUSTOMERS = [
    ],
    orderRows:[["A41022087755","08 Jul 2026",18,"£884.60","Delivered"],["A41022087001","30 Jun 2026",22,"£1,102.35","Delivered"],["A41022086402","21 Jun 2026",15,"£763.90","Delivered"]]},
   {num:"1902 4471 866", name:"Brightway Decorating", trade:"Decorator", spend52:7215, spend12:2890, spend3:860, orders:74, trend:6,
-   day:"Thursday", time:"08:00 - 10:00", peak:"Thu 08:00 - 10:00", stores:2, favStore:"Winchester", channel:"Branch", tier:"Bronze",
+   day:"Thursday", time:"08:00 - 10:00", peak:"Thu 08:00 - 10:00", stores:2, favStore:"Winchester", channelMix:{branch:60, collect:25, delivery:15}, tier:"Bronze",
    brands:{powerTools:"Bosch", handTools:"Irwin", plumbing:"Polypipe", electrical:"Wago"},
    jobs:[
      {title:"Exterior repaint, The Old Vicarage", stage:"Quoted", value:1480, due:"05 Aug 2026", note:"Customer wants a colour sample board before confirming"},
    ],
    orderRows:[["A41022088310","15 Jul 2026",6,"£201.14","Collected"],["A41022087840","09 Jul 2026",4,"£133.72","Collected"],["A41022087290","04 Jul 2026",7,"£244.90","Delivered"]]},
   {num:"1156 7720 349", name:"Aqua Bathrooms & Tiling", trade:"Tiler", spend52:12480, spend12:4020, spend3:1310, orders:112, trend:14,
-   day:"Tuesday", time:"10:00 - 12:00", peak:"Tue 10:00 - 12:00", stores:3, favStore:"Dorchester", channel:"Click & Collect", tier:"Silver",
+   day:"Tuesday", time:"10:00 - 12:00", peak:"Tue 10:00 - 12:00", stores:3, favStore:"Dorchester", channelMix:{branch:28, collect:54, delivery:18}, tier:"Silver",
    brands:{powerTools:"DeWalt", handTools:"Bahco", plumbing:"FloPlast", electrical:"MK Electric"},
    jobs:[
      {title:"Wet room installation, Fern Cottage", stage:"In progress", value:2900, due:"27 Jul 2026", note:"Customer on holiday until 24 Jul, do not call before then"},
@@ -361,7 +365,7 @@ const CUSTOMERS = [
    ],
    orderRows:[["A41022088350","16 Jul 2026",9,"£388.27","Collected"],["A41022087911","10 Jul 2026",11,"£451.63","Collected"],["A41022087433","05 Jul 2026",5,"£177.08","Delivered"],["A41022086980","30 Jun 2026",8,"£315.44","Collected"]]},
   {num:"2088 1934 502", name:"Pinnacle Roofing SW", trade:"Roofer", spend52:16750, spend12:3120, spend3:520, orders:89, trend:-11,
-   day:"Wednesday", time:"07:00 - 09:00", peak:"Wed 07:00 - 09:00", stores:2, favStore:"Yeovil", channel:"Branch", tier:"Silver",
+   day:"Wednesday", time:"07:00 - 09:00", peak:"Wed 07:00 - 09:00", stores:2, favStore:"Yeovil", channelMix:{branch:55, collect:22, delivery:23}, tier:"Silver",
    brands:{powerTools:"Makita", handTools:"Stanley", plumbing:"Polypipe", electrical:"Tower"},
    jobs:[
      {title:"Re-roof, Hilltop Barn", stage:"Enquiry", value:6400, due:"12 Aug 2026", note:"Customer wants a site visit before committing to a quote"},
@@ -680,7 +684,11 @@ function renderCustomerPanel(){
     <div class="sec-title">Loyalty</div>
     <div class="card-grid g2">
       <div class="dcard"><span class="ico">&#127970;</span><div><div class="caption1">Favourite store</div><div class="v big">${c.favStore}</div></div></div>
-      <div class="dcard"><span class="ico">&#128717;</span><div><div class="caption1">Favourite channel</div><div class="v big">${c.channel}</div></div></div>
+      <div class="dcard"><span class="ico">&#128717;</span><div style="flex:1;min-width:0">
+        <div class="caption1">Channel mix</div>
+        <div class="mix-track"><span class="mix-seg branch" style="width:${c.channelMix.branch}%"></span><span class="mix-seg collect" style="width:${c.channelMix.collect}%"></span><span class="mix-seg delivery" style="width:${c.channelMix.delivery}%"></span></div>
+        <div class="caption1">Branch ${c.channelMix.branch}% &middot; C&amp;C ${c.channelMix.collect}% &middot; Delivery ${c.channelMix.delivery}%</div>
+      </div></div>
     </div>
     <div class="sec-title">Preferred brands</div>
     <div class="card-grid g4">
