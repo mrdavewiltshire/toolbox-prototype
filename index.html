@@ -222,7 +222,23 @@
   .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:50;}
   .overlay.show{display:flex;}
   .modal{background:var(--surface);border-radius:12px;border:1px solid var(--stroke);padding:22px;width:340px;max-width:92vw;}
+  .modal.wide{width:460px;}
   .modal h3{font-size:16px;font-weight:600;color:var(--purple);margin-bottom:14px;}
+  .tool-field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+  .tool-field input, .tool-field select{
+    width:100%;font-family:inherit;font-size:14px;padding:8px 10px;border-radius:6px;border:1px solid var(--stroke);
+    background:var(--surface);color:var(--fg1);}
+  .tool-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .tool-row3 .tool-field{min-width:0;}
+  .tool-result{background:var(--card);border-radius:8px;padding:14px 16px;margin:12px 0;}
+  .stock-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--stroke);}
+  .stock-row:last-child{border-bottom:none;}
+  .track-steps{display:flex;justify-content:space-between;margin:16px 0 6px;}
+  .track-step{flex:1;text-align:center;position:relative;}
+  .track-step .dot{width:12px;height:12px;border-radius:50%;background:var(--card);border:2px solid var(--stroke);margin:0 auto 6px;}
+  .track-step.done .dot{background:var(--purple);border-color:var(--purple);}
+  .track-step .lab{font-size:11px;color:var(--fg3);}
+  .track-step.done .lab{color:var(--fg1);font-weight:600;}
   .store-opt{padding:11px 12px;border-radius:8px;cursor:pointer;border:1px solid transparent;}
   .store-opt:hover{background:var(--card);}
   .store-opt.on{background:var(--purple-light);border-color:var(--sel-border);}
@@ -264,6 +280,13 @@
       <div class="side-link" onclick="toggleTheme()"><span class="ico" id="themeIco">&#9788;</span><span id="themeLbl">Dark mode</span></div>
     </div>
     <div class="side-section">
+      <div class="side-label">Tools</div>
+      <div class="side-link" onclick="openTool('btu')"><span class="ico">&#127777;</span>Radiator BTU calculator</div>
+      <div class="side-link" onclick="openTool('stock')"><span class="ico">&#128269;</span>Stock finder</div>
+      <div class="side-link" onclick="openTool('discount')"><span class="ico">%</span>Quote discount tool</div>
+      <div class="side-link" onclick="openTool('delivery')"><span class="ico">&#128666;</span>Delivery tracking</div>
+    </div>
+    <div class="side-section">
       <div class="side-label">Support</div>
       <div class="side-link" onclick="toast('Problem report opened (prototype)')"><span class="ico">&#9993;</span>Report a problem</div>
     </div>
@@ -300,6 +323,9 @@
     <h3>Select store</h3>
     <div id="storeList"></div>
   </div>
+</div>
+<div class="overlay" id="toolOverlay" onclick="if(event.target===this)closeToolModal()">
+  <div class="modal wide" id="toolModal"></div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -385,6 +411,14 @@ const TOP_PRODUCTS = [
 ];
 const WEEK_SALES = [2860, 3140, 4434, 3910, 2787, 0, 0]; /* Mon-Sun so far */
 const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+const STOCK_ITEMS = [
+  {name:"Erbauer EXT 18V combi drill", stock:{Winchester:14, Yeovil:3, Dorchester:0, Basingstoke:22}},
+  {name:"Tower flat twin & earth 2.5mm x 100m", stock:{Winchester:6, Yeovil:11, Dorchester:8, Basingstoke:2}},
+  {name:"FloPlast solvent weld waste 40mm", stock:{Winchester:0, Yeovil:5, Dorchester:17, Basingstoke:9}},
+  {name:"No Nonsense trade sealant clear", stock:{Winchester:31, Yeovil:20, Dorchester:14, Basingstoke:26}},
+  {name:"DeWalt XR brushless impact driver", stock:{Winchester:4, Yeovil:0, Dorchester:2, Basingstoke:7}},
+  {name:"Bahco adjustable spanner set", stock:{Winchester:9, Yeovil:6, Dorchester:0, Basingstoke:13}},
+];
 const QUOTES = [
   ["QTE-2216","KJB Electrical Ltd","Consumer unit refit x3","£1,842.50","21 Jul 2026","open"],
   ["QTE-2214","Southgate Property Maintenance","Landlord kit bundle","£684.20","20 Jul 2026","open"],
@@ -903,6 +937,109 @@ function pickStore(i){
   document.getElementById("storeMeta").innerHTML=`Store ${s.num} &middot; ${s.region}`;
   closeStoreModal(); render();
   toast("Switched to "+s.name);
+}
+
+/* ============ TOOLS ============ */
+const TOOL_TITLES = {btu:"Radiator size (BTU) calculator", stock:"Stock finder", discount:"Quote discount tool", delivery:"Delivery tracking"};
+const TOOL_RENDER = {btu:renderBtuTool, stock:renderStockTool, discount:renderDiscountTool, delivery:renderDeliveryTool};
+
+function openTool(name){
+  document.getElementById("toolModal").innerHTML = `<h3>${TOOL_TITLES[name]}</h3>` + TOOL_RENDER[name]();
+  document.getElementById("toolOverlay").classList.add("show");
+  if(name==="btu") calcBtu();
+  if(name==="stock") calcStock();
+  if(name==="discount") calcDiscount();
+}
+function closeToolModal(){ document.getElementById("toolOverlay").classList.remove("show"); }
+
+function renderBtuTool(){
+  return `
+    <div class="tool-field"><label class="caption1">Room type</label>
+      <select id="btuType" onchange="calcBtu()">
+        <option value="1.0">Bedroom</option>
+        <option value="1.1" selected>Living room</option>
+        <option value="1.2">Kitchen</option>
+        <option value="1.3">Bathroom</option>
+      </select>
+    </div>
+    <div class="tool-row3">
+      <div class="tool-field"><label class="caption1">Length (m)</label><input type="number" id="btuL" value="4" min="0" step="0.1" oninput="calcBtu()"></div>
+      <div class="tool-field"><label class="caption1">Width (m)</label><input type="number" id="btuW" value="3.5" min="0" step="0.1" oninput="calcBtu()"></div>
+      <div class="tool-field"><label class="caption1">Height (m)</label><input type="number" id="btuH" value="2.4" min="0" step="0.1" oninput="calcBtu()"></div>
+    </div>
+    <div class="tool-result">
+      <div class="caption1">Estimated output needed</div>
+      <div class="v big" id="btuResult">0 BTU/hr</div>
+    </div>
+    <div class="sp-legend" style="border:none">Rule-of-thumb estimate only; use a full room survey for larger or poorly insulated spaces</div>`;
+}
+function calcBtu(){
+  const l=parseFloat(document.getElementById("btuL").value)||0;
+  const w=parseFloat(document.getElementById("btuW").value)||0;
+  const h=parseFloat(document.getElementById("btuH").value)||0;
+  const factor=parseFloat(document.getElementById("btuType").value)||1;
+  const btu=Math.round(l*w*h*176.5*factor);
+  document.getElementById("btuResult").textContent=btu.toLocaleString("en-GB")+" BTU/hr";
+}
+
+function renderStockTool(){
+  const opts=STOCK_ITEMS.map((p,i)=>`<option value="${i}">${p.name}</option>`).join("");
+  return `
+    <div class="tool-field"><label class="caption1">Product</label>
+      <select id="stockProduct" onchange="calcStock()">${opts}</select>
+    </div>
+    <div id="stockResults"></div>`;
+}
+function calcStock(){
+  const p=STOCK_ITEMS[document.getElementById("stockProduct").value||0];
+  const rows=STORES.map(s=>{
+    const n=p.stock[s.name]||0;
+    const cls=n===0?"exp":n<=5?"progress":"done";
+    const lbl=n===0?"Out of stock":n<=5?"Low stock":"In stock";
+    return `<div class="stock-row"><span>${s.name}</span><span><b style="margin-right:8px">${n}</b><span class="status ${cls}">${lbl}</span></span></div>`;
+  }).join("");
+  document.getElementById("stockResults").innerHTML=rows;
+}
+
+function renderDiscountTool(){
+  return `
+    <div class="tool-row3" style="grid-template-columns:1fr 1fr">
+      <div class="tool-field"><label class="caption1">Quote value (£)</label><input type="number" id="qdValue" value="1200" min="0" step="1" oninput="calcDiscount()"></div>
+      <div class="tool-field"><label class="caption1">Discount (%)</label><input type="number" id="qdPct" value="10" min="0" max="100" step="1" oninput="calcDiscount()"></div>
+    </div>
+    <div class="card-grid g2" style="margin-bottom:0">
+      <div class="dcard"><div><div class="caption1">You save</div><div class="v big" id="qdSave">£0.00</div></div></div>
+      <div class="dcard"><div><div class="caption1">Discounted total</div><div class="v big" id="qdTotal">£0.00</div></div></div>
+    </div>`;
+}
+function calcDiscount(){
+  const value=parseFloat(document.getElementById("qdValue").value)||0;
+  const pct=parseFloat(document.getElementById("qdPct").value)||0;
+  const save=value*pct/100;
+  document.getElementById("qdSave").textContent=gbp(Math.round(save*100)/100);
+  document.getElementById("qdTotal").textContent=gbp(Math.round((value-save)*100)/100);
+}
+
+function renderDeliveryTool(){
+  return `
+    <div class="tool-field"><label class="caption1">Order number</label>
+      <input type="text" id="dtOrder" placeholder="e.g. A41022088213">
+    </div>
+    <button class="btn" style="margin-top:0" onclick="trackDelivery()">Track order</button>
+    <div id="dtResult"></div>`;
+}
+function trackDelivery(){
+  const order=document.getElementById("dtOrder").value.trim();
+  const box=document.getElementById("dtResult");
+  if(!order){ box.innerHTML=`<div class="sp-legend" style="border:none">Enter an order number to track it</div>`; return; }
+  const steps=["Placed","Dispatched","Out for delivery","Delivered"];
+  const hash=order.split("").reduce((s,c)=>s+c.charCodeAt(0),0);
+  const doneCount=(hash%4)+1;
+  const eta=["Due 22 Jul 2026","Dispatched, due 21 Jul 2026","Out for delivery, due today by 6pm","Delivered 14 Jul 2026"][doneCount-1];
+  box.innerHTML=`
+    <div class="track-steps">${steps.map((s,i)=>`
+      <div class="track-step ${i<doneCount?'done':''}"><div class="dot"></div><div class="lab">${s}</div></div>`).join("")}</div>
+    <div class="sp-legend" style="border:none">${order}: ${eta} (prototype)</div>`;
 }
 
 render();
