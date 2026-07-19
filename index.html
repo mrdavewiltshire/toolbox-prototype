@@ -187,6 +187,12 @@
   .status.done{background:var(--good-bg);color:var(--good);}
   .status.open{background:var(--purple-light);color:var(--purple);}
   .status.exp{background:var(--bad-bg);color:var(--bad);}
+  .status.new{background:var(--card);color:var(--fg3);}
+  .status.progress{background:var(--gold-bg);color:var(--gold);}
+  .followup-card{background:var(--gold-bg);border-radius:8px;padding:14px 16px;margin-bottom:18px;}
+  .followup-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+  .followup-head .ico{color:var(--gold);font-size:15px;}
+  .followup-body{font-size:14px;line-height:20px;color:var(--fg1);margin-bottom:10px;}
 
   .stat-list{display:flex;flex-direction:column;gap:8px;}
   .stat-item{background:var(--card);border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:12px;}
@@ -302,34 +308,63 @@ const CUSTOMERS = [
   {num:"2540 9321 777", name:"Hartley Plumbing & Heating", trade:"Plumber", spend52:24870, spend12:4210, spend3:640, orders:214, trend:-8,
    day:"Monday", time:"07:00 - 09:00", peak:"Mon 07:00 - 09:00", stores:2, favStore:"Winchester", channel:"Branch", tier:"Gold",
    brands:{powerTools:"DeWalt", handTools:"Bahco", plumbing:"FloPlast", electrical:"Tower"},
+   jobs:[
+     {title:"Boiler swap, 14 Elm Road", stage:"In progress", value:1850, due:"25 Jul 2026", note:"Customer wants a call before final fix, prefers afternoons"},
+     {title:"Bathroom refit, Kings Avenue", stage:"Quoted", value:3200, due:"02 Aug 2026", note:"Waiting on customer to confirm tile choice"},
+   ],
    orderRows:[["A41022088213","14 Jul 2026",6,"£214.60","Collected"],["A41022087901","10 Jul 2026",11,"£486.12","Collected"],["A41022087544","07 Jul 2026",3,"£92.40","Delivered"],["A41022087102","01 Jul 2026",9,"£337.85","Collected"],["A41022086690","26 Jun 2026",14,"£611.02","Delivered"]]},
   {num:"1337 0483 524", name:"KJB Electrical Ltd", trade:"Electrician", spend52:18400, spend12:6400, spend3:1400, orders:127, trend:12,
    day:"Tuesday", time:"08:00 - 10:00", peak:"Tue 10:00 - 13:00", stores:4, favStore:"Winchester", channel:"Branch", tier:"Gold",
    brands:{powerTools:"Makita", handTools:"Stanley", plumbing:"Polypipe", electrical:"Wago"},
+   jobs:[
+     {title:"Consumer unit upgrade, Riverside Flats", stage:"In progress", value:2450, due:"22 Jul 2026", note:"Landlord needs sign-off certificate emailed same day"},
+     {title:"EV charger install, Meadow Close", stage:"Enquiry", value:980, due:"30 Jul 2026", note:"Customer asking about grant eligibility, check before quoting"},
+   ],
    orderRows:[["A41022088377","16 Jul 2026",8,"£342.18","Collected"],["A41022088015","12 Jul 2026",5,"£188.90","Collected"],["A41022087610","08 Jul 2026",12,"£529.44","Delivered"],["A41022087233","03 Jul 2026",4,"£141.20","Collected"],["A41022086801","28 Jun 2026",10,"£410.66","Collected"]]},
   {num:"1223 8193 048", name:"Southgate Property Maintenance", trade:"Maintenance", spend52:15920, spend12:4780, spend3:1120, orders:186, trend:9,
    day:"Wednesday", time:"09:00 - 11:00", peak:"Wed 09:00 - 11:00", stores:3, favStore:"Basingstoke", channel:"Click & Collect", tier:"Silver",
    brands:{powerTools:"Bosch", handTools:"Irwin", plumbing:"FloPlast", electrical:"Tower"},
+   jobs:[
+     {title:"Communal repairs, Beech Court", stage:"Complete", value:1620, due:"10 Jul 2026", note:"Invoice sent, chase payment if not cleared by month end"},
+     {title:"Gutter and fascia repair, Oak Lane", stage:"Quoted", value:740, due:"29 Jul 2026", note:"Customer wants work done before school holidays"},
+   ],
    orderRows:[["A41022088290","15 Jul 2026",7,"£268.31","Collected"],["A41022087880","09 Jul 2026",9,"£374.09","Collected"],["A41022087401","05 Jul 2026",6,"£212.77","Delivered"],["A41022086950","30 Jun 2026",13,"£487.55","Collected"]]},
   {num:"1584 8953 191", name:"D. Mercer Carpentry", trade:"Carpenter", spend52:9640, spend12:3350, spend3:980, orders:98, trend:17,
    day:"Friday", time:"07:00 - 09:00", peak:"Fri 07:00 - 09:00", stores:1, favStore:"Winchester", channel:"Branch", tier:"Silver",
    brands:{powerTools:"DeWalt", handTools:"Bahco", plumbing:"Polypipe", electrical:"MK Electric"},
+   jobs:[
+     {title:"Fitted wardrobes, Church Street", stage:"In progress", value:2100, due:"24 Jul 2026", note:"Customer changed door colour, confirm new stock lead time"},
+   ],
    orderRows:[["A41022088401","17 Jul 2026",4,"£156.80","Collected"],["A41022087995","11 Jul 2026",8,"£302.45","Collected"],["A41022087520","06 Jul 2026",5,"£178.12","Collected"]]},
   {num:"0677 6645 033", name:"Fairfield Groundworks", trade:"Groundworker", spend52:31200, spend12:5100, spend3:410, orders:156, trend:-21,
    day:"Monday", time:"06:00 - 08:00", peak:"Mon 06:00 - 08:00", stores:2, favStore:"Yeovil", channel:"Delivery", tier:"Gold",
    brands:{powerTools:"Makita", handTools:"Stanley", plumbing:"FloPlast", electrical:"Tower"},
+   jobs:[
+     {title:"Site drainage, Hollow Way development", stage:"In progress", value:8600, due:"31 Jul 2026", note:"Site manager wants deliveries before 7am only"},
+     {title:"Access road groundworks, Mill Farm", stage:"Enquiry", value:4200, due:"08 Aug 2026", note:"Awaiting planning confirmation from customer"},
+   ],
    orderRows:[["A41022087755","08 Jul 2026",18,"£884.60","Delivered"],["A41022087001","30 Jun 2026",22,"£1,102.35","Delivered"],["A41022086402","21 Jun 2026",15,"£763.90","Delivered"]]},
   {num:"1902 4471 866", name:"Brightway Decorating", trade:"Decorator", spend52:7215, spend12:2890, spend3:860, orders:74, trend:6,
    day:"Thursday", time:"08:00 - 10:00", peak:"Thu 08:00 - 10:00", stores:2, favStore:"Winchester", channel:"Branch", tier:"Bronze",
    brands:{powerTools:"Bosch", handTools:"Irwin", plumbing:"Polypipe", electrical:"Wago"},
+   jobs:[
+     {title:"Exterior repaint, The Old Vicarage", stage:"Quoted", value:1480, due:"05 Aug 2026", note:"Customer wants a colour sample board before confirming"},
+   ],
    orderRows:[["A41022088310","15 Jul 2026",6,"£201.14","Collected"],["A41022087840","09 Jul 2026",4,"£133.72","Collected"],["A41022087290","04 Jul 2026",7,"£244.90","Delivered"]]},
   {num:"1156 7720 349", name:"Aqua Bathrooms & Tiling", trade:"Tiler", spend52:12480, spend12:4020, spend3:1310, orders:112, trend:14,
    day:"Tuesday", time:"10:00 - 12:00", peak:"Tue 10:00 - 12:00", stores:3, favStore:"Dorchester", channel:"Click & Collect", tier:"Silver",
    brands:{powerTools:"DeWalt", handTools:"Bahco", plumbing:"FloPlast", electrical:"MK Electric"},
+   jobs:[
+     {title:"Wet room installation, Fern Cottage", stage:"In progress", value:2900, due:"27 Jul 2026", note:"Customer on holiday until 24 Jul, do not call before then"},
+     {title:"Kitchen splashback tiling, Vale Road", stage:"Complete", value:620, due:"14 Jul 2026", note:"Happy with the job, asked about a loyalty discount on the next one"},
+   ],
    orderRows:[["A41022088350","16 Jul 2026",9,"£388.27","Collected"],["A41022087911","10 Jul 2026",11,"£451.63","Collected"],["A41022087433","05 Jul 2026",5,"£177.08","Delivered"],["A41022086980","30 Jun 2026",8,"£315.44","Collected"]]},
   {num:"2088 1934 502", name:"Pinnacle Roofing SW", trade:"Roofer", spend52:16750, spend12:3120, spend3:520, orders:89, trend:-11,
    day:"Wednesday", time:"07:00 - 09:00", peak:"Wed 07:00 - 09:00", stores:2, favStore:"Yeovil", channel:"Branch", tier:"Silver",
    brands:{powerTools:"Makita", handTools:"Stanley", plumbing:"Polypipe", electrical:"Tower"},
+   jobs:[
+     {title:"Re-roof, Hilltop Barn", stage:"Enquiry", value:6400, due:"12 Aug 2026", note:"Customer wants a site visit before committing to a quote"},
+   ],
    orderRows:[["A41022087690","08 Jul 2026",10,"£442.19","Collected"],["A41022087150","02 Jul 2026",13,"£571.66","Delivered"],["A41022086550","23 Jun 2026",9,"£398.02","Collected"]]},
 ];
 
@@ -537,6 +572,7 @@ function renderCustomerPanel(){
     <div class="tabs">
       <div class="tab ${state.rightTab==='overview'?'active':''}" onclick="setRightTab('overview')"><span>&#128100;</span>Overview</div>
       <div class="tab ${state.rightTab==='orders'?'active':''}" onclick="setRightTab('orders')"><span>&#128203;</span>Orders</div>
+      <div class="tab ${state.rightTab==='jobs'?'active':''}" onclick="setRightTab('jobs')"><span>&#128736;</span>Jobs</div>
     </div>`;
   if(state.rightTab==='orders'){
     const rows=c.orderRows.map(r=>`
@@ -550,6 +586,7 @@ function renderCustomerPanel(){
       </table></div>
       <div class="sp-legend" style="border:none;margin-top:10px">Showing last ${c.orderRows.length} orders &middot; Full history in Account review</div>`;
   }
+  if(state.rightTab==='jobs') return head+renderJobs(c);
   return head+`
     <div class="sec-title">Spend trend</div>
     <div class="card-grid g3">
@@ -596,6 +633,33 @@ function renderRewards(c){
       <div class="upsell-body">${recommendationFor(c)}</div>
       <button class="btn secondary" style="width:auto;padding:6px 14px;margin:0" onclick="toast('Promotion sent to ${c.name.replace(/'/g,"\\'")} (prototype)')">Send promotion</button>
     </div>`;
+}
+
+const STAGE_CLASS = {"Enquiry":"new", "Quoted":"open", "In progress":"progress", "Complete":"done"};
+
+function renderJobs(c){
+  const open = c.jobs.find(j=>j.stage!=="Complete");
+  const followup = open ? `
+    <div class="followup-card">
+      <div class="followup-head"><span class="ico">&#128276;</span><span class="subtitle2">Follow up with colleague</span></div>
+      <div class="followup-body">Note on "${open.title}": "${open.note}"</div>
+      <button class="btn secondary" style="width:auto;padding:6px 14px;margin:0" onclick="toast('Marked as followed up: ${open.title.replace(/'/g,"\\'")} (prototype)')">Mark as actioned</button>
+    </div>` : `
+    <div class="followup-card">
+      <div class="followup-head"><span class="ico">&#128276;</span><span class="subtitle2">Follow up with colleague</span></div>
+      <div class="followup-body">No open jobs need a follow-up right now</div>
+    </div>`;
+  const rows = c.jobs.map(j=>`
+    <div class="stat-item">
+      <div class="lab"><div class="caption1">${j.due} &middot; ${gbp(j.value)}</div><div class="v">${j.title}</div></div>
+      <span class="status ${STAGE_CLASS[j.stage]}">${j.stage}</span>
+    </div>`).join("");
+  return `
+    <div class="sec-title" style="margin-top:0">Colleague follow-up</div>
+    ${followup}
+    <div class="sec-title">Jobs</div>
+    <div class="stat-list">${rows}</div>
+    <div class="sp-legend" style="border:none;margin-top:10px">${c.jobs.length} job${c.jobs.length===1?"":"s"} on file for this account &middot; notes are entered by colleagues in branch</div>`;
 }
 
 function renderReview(){
