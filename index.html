@@ -392,7 +392,7 @@ let state = {
 const gbp = n => "£" + n.toLocaleString("en-GB", {minimumFractionDigits: n % 1 ? 2 : 0});
 function rewardsInfo(c){
   const pts = scale(c.spend52);
-  const weekly = Math.round(scale(c.spend3));
+  const weekly = Math.round(scale(c.spend3)/3); /* spend3 is a 3-week total; divide down to a single week's rate */
   let idx = 0;
   for(let i=0;i<REWARD_TIERS.length;i++){ if(pts>=REWARD_TIERS[i].min) idx=i; }
   const cur = REWARD_TIERS[idx];
@@ -553,9 +553,9 @@ function renderCustomerPanel(){
   return head+`
     <div class="sec-title">Spend trend</div>
     <div class="card-grid g3">
-      <div class="dcard"><div><div class="caption1">Ave spend, 52 weeks</div><div class="v">${gbp(scale(c.spend52))}</div></div></div>
-      <div class="dcard"><div><div class="caption1">Ave spend, 12 weeks</div><div class="v">${gbp(scale(c.spend12))}</div></div></div>
-      <div class="dcard"><div><div class="caption1">Ave spend, 3 weeks</div><div class="v">${gbp(scale(c.spend3))}</div></div></div>
+      <div class="dcard"><div><div class="caption1">Spend, 52 wks</div><div class="v">${gbp(scale(c.spend52))}</div></div></div>
+      <div class="dcard"><div><div class="caption1">Spend, 12 wks</div><div class="v">${gbp(scale(c.spend12))}</div></div></div>
+      <div class="dcard"><div><div class="caption1">Spend, 3 wks</div><div class="v">${gbp(scale(c.spend3))}</div></div></div>
       <div class="trend-pill ${c.trend>=0?'pos':'neg'}">
         <div class="caption1">Trend</div>
         <div class="v">${c.trend>=0?"&#8599;":"&#8600;"} ${c.trend>=0?"+":""}${c.trend}%</div>
