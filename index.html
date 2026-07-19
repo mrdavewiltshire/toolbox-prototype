@@ -275,6 +275,7 @@
       <div class="nav-item" data-page="upgrade" onclick="setPage('upgrade')"><span style="color:var(--purple)">&#10133;</span>Account upgrade</div>
       <div class="nav-item" data-page="quotes" onclick="setPage('quotes')"><span style="color:var(--purple)">&#163;</span>Quote tracker</div>
       <div class="nav-item" data-page="rewards" onclick="setPage('rewards')"><span style="color:var(--purple)">&#11088;</span>Rewards</div>
+      <div class="nav-item" data-page="jobs" onclick="setPage('jobs')"><span style="color:var(--purple)">&#128736;</span>Jobs</div>
       <div class="grow"></div>
       <div class="period" onclick="cyclePeriod()" title="Click to cycle reporting week (prototype)">
         <div class="seg"><span class="caption1">Period</span><span class="val" id="periodVal">6</span></div>
@@ -377,6 +378,14 @@ const TOP_PRODUCTS = [
 ];
 const WEEK_SALES = [2860, 3140, 4434, 3910, 2787, 0, 0]; /* Mon-Sun so far */
 const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+const QUOTES = [
+  ["QTE-2216","KJB Electrical Ltd","Consumer unit refit x3","£1,842.50","21 Jul 2026","open"],
+  ["QTE-2214","Southgate Property Maintenance","Landlord kit bundle","£684.20","20 Jul 2026","open"],
+  ["QTE-2209","Hartley Plumbing & Heating","Unvented cylinder + fittings","£1,266.75","18 Jul 2026","open"],
+  ["QTE-2201","Aqua Bathrooms & Tiling","Wet room package","£2,410.00","15 Jul 2026","done"],
+  ["QTE-2195","Fairfield Groundworks","Drainage materials","£3,882.40","12 Jul 2026","exp"],
+  ["QTE-2190","Brightway Decorating","Trade paint bulk order","£512.90","11 Jul 2026","done"],
+];
 
 /* Screwfix Rewards: fictional points-based loyalty tier, 1 point per £1 spent (52 wk) */
 const REWARD_TIERS = [
@@ -463,7 +472,69 @@ function render(){
   else if(state.page==="review") host.innerHTML=renderReview();
   else if(state.page==="upgrade") host.innerHTML=renderUpgrade();
   else if(state.page==="rewards") host.innerHTML=renderRewardsPage();
+  else if(state.page==="jobs") host.innerHTML=renderJobsPage();
   else host.innerHTML=renderQuotes();
+}
+
+function computeDailyActions(){
+  const actions = [];
+  const jobItems = CUSTOMERS.map((c,i)=>{
+    const open = c.jobs.find(j=>j.stage!=="Complete");
+    return open ? {due:new Date(open.due), i, c, job:open} : null;
+  }).filter(Boolean).sort((a,b)=>a.due-b.due).slice(0,2);
+  jobItems.forEach(({c,i,job})=>actions.push({
+    icon:"&#128276;",
+    text:`Follow up with ${c.name}: "${job.note}"`,
+    btnLabel:"View job",
+    onclick:`viewCustJobs(${i})`,
+  }));
+  const rewardsSorted = CUSTOMERS.map((c,i)=>({c,i,r:rewardsInfo(c)})).filter(x=>x.r.next)
+    .sort((a,b)=>(a.r.next.min-a.r.pts)-(b.r.next.min-b.r.pts));
+  if(rewardsSorted[0]){
+    const {c,r} = rewardsSorted[0];
+    actions.push({
+      icon:"&#11088;",
+      text:`${c.name} is ${(r.next.min-r.pts).toLocaleString("en-GB")} pts from ${r.next.name}, send their promotion`,
+      btnLabel:"Send promotion",
+      onclick:`toast('Promotion sent to ${c.name.replace(/'/g,"\\'")} (prototype)')`,
+    });
+  }
+  const openQuotes = QUOTES.filter(q=>q[5]==="open").sort((a,b)=>new Date(a[4])-new Date(b[4]));
+  if(openQuotes[0]){
+    const q = openQuotes[0];
+    actions.push({
+      icon:"&#163;",
+      text:`Quote ${q[0]} for ${q[1]} expires ${q[4]}, follow up before it lapses`,
+      btnLabel:"View quotes",
+      onclick:`setPage('quotes')`,
+    });
+  }
+  const eligible = CUSTOMERS.map((c,i)=>({c,i})).filter(x=>x.c.tier!=="Gold" && x.c.trend>0);
+  if(eligible[0]){
+    const {c} = eligible[0];
+    actions.push({
+      icon:"&#10133;",
+      text:`${c.name} is trending +${c.trend}%, eligible for a tier upgrade`,
+      btnLabel:"Send offer",
+      onclick:`toast('Upgrade pack sent to ${c.name.replace(/'/g,"\\'")} (prototype)')`,
+    });
+  }
+  return actions;
+}
+
+function renderDailyActions(){
+  const actions = computeDailyActions();
+  const rows = actions.map(a=>`
+    <div class="stat-item">
+      <div class="rank">${a.icon}</div>
+      <div class="lab"><div class="v">${a.text}</div></div>
+      <button class="btn secondary" style="width:auto;padding:6px 14px;margin:0" onclick="${a.onclick}">${a.btnLabel}</button>
+    </div>`).join("");
+  return `<section class="panel">
+    <div class="panel-head"><div class="panel-title">Today's actions</div>
+    <span class="caption1">${actions.length} things to do &middot; ${STORES[state.storeIdx].name}</span></div>
+    <div class="stat-list">${rows}</div>
+  </section>`;
 }
 
 function renderMain(){
@@ -505,6 +576,7 @@ function renderMain(){
     </div>` : `<div class="caption1">Collapsed. Select the chevron to expand.</div>`;
 
   return `
+  ${renderDailyActions()}
   <section class="panel">
     <div class="panel-head">
       <div class="panel-title">Performance overview</div>
@@ -725,17 +797,44 @@ function renderRewardsPage(){
   </section>`;
 }
 
+function renderJobsPage(){
+  const target = scale(21481.91*100)/100;
+  const allJobs = CUSTOMERS.flatMap((c,i)=>c.jobs.map(j=>({...j, custIdx:i, custName:c.name, trade:c.trade})));
+  const pipelineJobs = allJobs.filter(j=>j.stage!=="Complete");
+  const pipelineValue = pipelineJobs.reduce((s,j)=>s+j.value,0);
+  const completeValue = allJobs.filter(j=>j.stage==="Complete").reduce((s,j)=>s+j.value,0);
+  const pctOfTarget = Math.round(pipelineValue/target*100);
+  const sorted = allJobs.slice().sort((a,b)=>new Date(a.due)-new Date(b.due));
+  const rows = sorted.map(j=>`
+    <tr>
+      <td style="font-weight:600">${j.custName}</td>
+      <td>${j.trade}</td>
+      <td>${j.title}</td>
+      <td><span class="status ${STAGE_CLASS[j.stage]}">${j.stage}</span></td>
+      <td class="num">${gbp(j.value)}</td>
+      <td>${j.due}</td>
+      <td><button class="btn secondary" style="width:auto;padding:5px 12px;margin:0" onclick="viewCustJobs(${j.custIdx})">View</button></td>
+    </tr>`).join("");
+  return `<section class="panel">
+    <div class="panel-head"><div class="panel-title">Jobs pipeline</div>
+    <span class="caption1">${allJobs.length} jobs &middot; ${STORES[state.storeIdx].name}</span></div>
+    <div class="card-grid g3">
+      <div class="dcard"><span class="ico">&#128736;</span><div><div class="caption1">Pipeline value</div><div class="v big">${gbp(pipelineValue)}</div></div></div>
+      <div class="dcard"><span class="ico">&#9203;</span><div><div class="caption1">Open jobs</div><div class="v big">${pipelineJobs.length}</div></div></div>
+      <div class="dcard"><span class="ico">&#9989;</span><div><div class="caption1">Completed value</div><div class="v big">${gbp(completeValue)}</div></div></div>
+    </div>
+    <div class="caption1" style="margin:-8px 0 18px">Pipeline value is ${pctOfTarget}% of this week's sales target (${gbp(target)})</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Account</th><th>Trade</th><th>Job</th><th>Stage</th><th class="num">Value</th><th>Due</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+    <div class="sp-legend" style="border:none;margin-top:10px">Sorted by due date &middot; pipeline value is compared against this week's sales target</div>
+  </section>`;
+}
+
 function renderQuotes(){
-  const quotes=[
-    ["QTE-2216","KJB Electrical Ltd","Consumer unit refit x3","£1,842.50","21 Jul 2026","open"],
-    ["QTE-2214","Southgate Property Maintenance","Landlord kit bundle","£684.20","20 Jul 2026","open"],
-    ["QTE-2209","Hartley Plumbing & Heating","Unvented cylinder + fittings","£1,266.75","18 Jul 2026","open"],
-    ["QTE-2201","Aqua Bathrooms & Tiling","Wet room package","£2,410.00","15 Jul 2026","done"],
-    ["QTE-2195","Fairfield Groundworks","Drainage materials","£3,882.40","12 Jul 2026","exp"],
-    ["QTE-2190","Brightway Decorating","Trade paint bulk order","£512.90","11 Jul 2026","done"],
-  ];
   const lbl={open:"Open",done:"Converted",exp:"Expired"};
-  const rows=quotes.map(q=>`
+  const rows=QUOTES.map(q=>`
     <tr><td style="font-weight:600">${q[0]}</td><td>${q[1]}</td><td>${q[2]}</td>
     <td class="num">${q[3]}</td><td>${q[4]}</td><td><span class="status ${q[5]}">${lbl[q[5]]}</span></td></tr>`).join("");
   const openVal = "£3,793.45";
@@ -755,6 +854,7 @@ function setPage(p){ state.page=p; render(); }
 function setLeftTab(t){ state.leftTab=t; render(); }
 function setRightTab(t){ state.rightTab=t; render(); }
 function selectCust(i){ state.custIdx=i; state.rightTab="overview"; render(); }
+function viewCustJobs(i){ state.page="main"; state.custIdx=i; state.rightTab="jobs"; render(); }
 function togglePerf(){ state.perfOpen=!state.perfOpen; render(); }
 function cyclePeriod(){
   state.week = state.week>=26 ? 22 : state.week+1;
