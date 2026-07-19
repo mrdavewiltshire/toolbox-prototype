@@ -225,9 +225,10 @@
   .modal.wide{width:460px;}
   .modal h3{font-size:16px;font-weight:600;color:var(--purple);margin-bottom:14px;}
   .tool-field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
-  .tool-field input, .tool-field select{
+  .tool-field input, .tool-field select, .tool-field textarea{
     width:100%;font-family:inherit;font-size:14px;padding:8px 10px;border-radius:6px;border:1px solid var(--stroke);
     background:var(--surface);color:var(--fg1);}
+  .tool-field textarea{resize:vertical;min-height:80px;}
   .tool-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
   .tool-row3 .tool-field{min-width:0;}
   .tool-result{background:var(--card);border-radius:8px;padding:14px 16px;margin:12px 0;}
@@ -418,6 +419,22 @@ const STOCK_ITEMS = [
   {name:"No Nonsense trade sealant clear", stock:{Winchester:31, Yeovil:20, Dorchester:14, Basingstoke:26}},
   {name:"DeWalt XR brushless impact driver", stock:{Winchester:4, Yeovil:0, Dorchester:2, Basingstoke:7}},
   {name:"Bahco adjustable spanner set", stock:{Winchester:9, Yeovil:6, Dorchester:0, Basingstoke:13}},
+];
+const SKU_CATALOG = [
+  {sku:"48221", name:"Erbauer EXT 18V combi drill", price:169.99},
+  {sku:"60214", name:"DeWalt XR brushless impact driver", price:139.99},
+  {sku:"33190", name:"Tower flat twin & earth 2.5mm x 100m", price:89.99},
+  {sku:"71042", name:"FloPlast solvent weld waste 40mm 3m", price:12.49},
+  {sku:"55678", name:"No Nonsense trade sealant clear", price:6.99},
+  {sku:"29981", name:"Bahco adjustable spanner set", price:34.99},
+  {sku:"81023", name:"Makita 18V brushless angle grinder", price:119.99},
+  {sku:"40456", name:"Polypipe push-fit elbow 22mm", price:3.29},
+];
+/* Volume-discount tiers applied to the bulk quote subtotal */
+const DISCOUNT_TIERS = [
+  {name:"Tier 1", min:0,    pct:3},
+  {name:"Tier 2", min:500,  pct:6},
+  {name:"Tier 3", min:1500, pct:10},
 ];
 const QUOTES = [
   ["QTE-2216","KJB Electrical Ltd","Consumer unit refit x3","£1,842.50","21 Jul 2026","open"],
@@ -1003,21 +1020,44 @@ function calcStock(){
 
 function renderDiscountTool(){
   return `
-    <div class="tool-row3" style="grid-template-columns:1fr 1fr">
-      <div class="tool-field"><label class="caption1">Quote value (£)</label><input type="number" id="qdValue" value="1200" min="0" step="1" oninput="calcDiscount()"></div>
-      <div class="tool-field"><label class="caption1">Discount (%)</label><input type="number" id="qdPct" value="10" min="0" max="100" step="1" oninput="calcDiscount()"></div>
+    <div class="tool-field">
+      <label class="caption1">Paste SKUs and quantities (one per line, e.g. from a copied PDF)</label>
+      <textarea id="qdBulk" rows="5" placeholder="48221 x4&#10;60214, 2&#10;71042 6" oninput="calcDiscount()"></textarea>
     </div>
-    <div class="card-grid g2" style="margin-bottom:0">
-      <div class="dcard"><div><div class="caption1">You save</div><div class="v big" id="qdSave">£0.00</div></div></div>
-      <div class="dcard"><div><div class="caption1">Discounted total</div><div class="v big" id="qdTotal">£0.00</div></div></div>
-    </div>`;
+    <div id="qdResults"></div>
+    <div class="sp-legend" style="border:none">Accepts SKU then quantity, separated by a space, comma or "x" &middot; tiers: ${DISCOUNT_TIERS.map(t=>gbp(t.min)+" = "+t.pct+"%").join(", ")}</div>`;
+}
+function parseSkuLine(line){
+  const m = line.trim().match(/^(\d{3,6})\s*[x,]?\s*(\d{1,4})/i);
+  if(!m) return null;
+  const sku = m[1], qty = parseInt(m[2],10);
+  const item = SKU_CATALOG.find(p=>p.sku===sku);
+  return {sku, qty, item};
 }
 function calcDiscount(){
-  const value=parseFloat(document.getElementById("qdValue").value)||0;
-  const pct=parseFloat(document.getElementById("qdPct").value)||0;
-  const save=value*pct/100;
-  document.getElementById("qdSave").textContent=gbp(Math.round(save*100)/100);
-  document.getElementById("qdTotal").textContent=gbp(Math.round((value-save)*100)/100);
+  const raw = document.getElementById("qdBulk").value;
+  const lines = raw.split("\n").map(l=>l.trim()).filter(Boolean);
+  const parsed = lines.map(parseSkuLine).filter(Boolean);
+  if(!parsed.length){ document.getElementById("qdResults").innerHTML=""; return; }
+  const rows = parsed.map(p=>{
+    if(!p.item) return `<tr><td>${p.sku}</td><td colspan="3"><span class="status exp">Unknown SKU</span></td></tr>`;
+    const lineTotal = p.item.price*p.qty;
+    return `<tr><td>${p.sku}</td><td>${p.item.name}</td><td class="num">${p.qty}</td><td class="num">${gbp(lineTotal)}</td></tr>`;
+  }).join("");
+  const subtotal = parsed.reduce((s,p)=>s+(p.item?p.item.price*p.qty:0),0);
+  let tier = DISCOUNT_TIERS[0];
+  for(const t of DISCOUNT_TIERS){ if(subtotal>=t.min) tier=t; }
+  const discountAmt = subtotal*tier.pct/100;
+  document.getElementById("qdResults").innerHTML = `
+    <div class="table-wrap"><table>
+      <thead><tr><th>SKU</th><th>Product</th><th class="num">Qty</th><th class="num">Line total</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+    <div class="card-grid g3" style="margin-top:14px">
+      <div class="dcard"><div><div class="caption1">Subtotal</div><div class="v big">${gbp(Math.round(subtotal*100)/100)}</div></div></div>
+      <div class="dcard"><div><div class="caption1">${tier.name} discount</div><div class="v big">${tier.pct}%</div></div></div>
+      <div class="dcard"><div><div class="caption1">Discounted total</div><div class="v big">${gbp(Math.round((subtotal-discountAmt)*100)/100)}</div></div></div>
+    </div>`;
 }
 
 function renderDeliveryTool(){
